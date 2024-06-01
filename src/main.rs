@@ -10,8 +10,13 @@ mod color;
 mod ray;
 mod vec3;
 
-fn ray_color(_r: &Ray) -> Color {
-    todo!()
+fn ray_color(r: &Ray) -> Color {
+    // Basic gradient. This is expected to have a small horizontal gradient to go with the vertical gradient,
+    // due to normalizing the direction before taking the y coordinate.
+
+    let unit_direction = r.direction().unit_vector();
+    let a = 0.5 * (unit_direction.y() + 1.0); // convert y coordinate to between 0 and 1
+    (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
 }
 
 fn main() -> Result<()> {
