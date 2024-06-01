@@ -30,8 +30,8 @@ impl Color {
     }
 }
 
-pub fn write_color(img: &mut RgbImage, color: &Color, x: u32, y: u32) {
-    img.put_pixel(x, y, color.into());
+pub fn write_color(img: &mut RgbImage, color: &Color, u: u32, v: u32) {
+    img.put_pixel(u, v, color.into());
 }
 
 impl Into<Rgb<u8>> for &Color {
