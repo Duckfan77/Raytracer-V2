@@ -3,6 +3,8 @@ use std::{env, io::Write};
 use anyhow::Result;
 use image::{Rgb, RgbImage};
 
+mod vec3;
+
 fn main() -> Result<()> {
     // Image details
     let image_width = 256;
