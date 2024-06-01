@@ -3,8 +3,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub},
 };
 
-#[allow(dead_code)]
-type Point3 = Vec3;
+pub type Point3 = Vec3;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Vec3(f64, f64, f64);

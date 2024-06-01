@@ -5,6 +5,7 @@ use color::{write_color, Color};
 use image::RgbImage;
 
 mod color;
+mod ray;
 mod vec3;
 
 fn main() -> Result<()> {
