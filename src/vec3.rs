@@ -3,10 +3,18 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub},
 };
 
+use once_cell::sync::Lazy;
+use rand::{
+    distributions::{Distribution, Uniform},
+    random,
+};
+
 pub type Point3 = Vec3;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Vec3(f64, f64, f64);
+
+static UNIT_SPHERE_DIST: Lazy<Uniform<f64>> = Lazy::new(|| Uniform::from(-1.0..1.0));
 
 impl Vec3 {
     pub fn new_e() -> Self {
@@ -15,6 +23,52 @@ impl Vec3 {
 
     pub fn new(e0: f64, e1: f64, e2: f64) -> Self {
         Self(e0, e1, e2)
+    }
+
+    pub fn random() -> Self {
+        Self(random(), random(), random())
+    }
+
+    pub fn random_range(min: f64, max: f64) -> Self {
+        let dist = Uniform::from(min..max);
+        let mut rng = rand::thread_rng();
+        Self(
+            dist.sample(&mut rng),
+            dist.sample(&mut rng),
+            dist.sample(&mut rng),
+        )
+    }
+
+    pub fn random_dist(dist: &Uniform<f64>) -> Self {
+        let mut rng = rand::thread_rng();
+        Self(
+            dist.sample(&mut rng),
+            dist.sample(&mut rng),
+            dist.sample(&mut rng),
+        )
+    }
+
+    pub fn random_in_unit_sphere() -> Self {
+        loop {
+            let p = Vec3::random_dist(&UNIT_SPHERE_DIST);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+
+    pub fn random_unit_vector() -> Self {
+        Vec3::random_in_unit_sphere().unit_vector()
+    }
+
+    pub fn random_on_hemisphere(normal: &Vec3) -> Self {
+        let on_sphere = Vec3::random_unit_vector();
+        if on_sphere.dot(normal) > 0.0 {
+            // In the same hemisphere as the normal
+            on_sphere
+        } else {
+            -on_sphere
+        }
     }
 
     pub fn x(&self) -> f64 {
