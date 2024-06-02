@@ -137,9 +137,3 @@ impl Div<f64> for Vec3 {
         self * (1.0 / rhs)
     }
 }
-
-impl Into<crate::color::Color> for Vec3 {
-    fn into(self) -> crate::color::Color {
-        crate::color::Color::new(self.x(), self.y(), self.z())
-    }
-}

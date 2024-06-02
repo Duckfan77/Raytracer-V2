@@ -18,7 +18,7 @@ mod vec3;
 
 fn ray_color(r: &Ray, world: &Hittable) -> Color {
     if let Some(rec) = world.hit(r, 0.0, f64::INFINITY) {
-        return 0.5 * (Color::from(rec.normal.into()) + Color::white());
+        return 0.5 * (Color::from(rec.normal) + Color::white());
     }
 
     // Basic gradient. This is expected to have a small horizontal gradient to go with the vertical gradient,

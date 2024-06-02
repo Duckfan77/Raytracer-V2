@@ -38,15 +38,21 @@ pub fn write_color(img: &mut RgbImage, color: &Color, u: u32, v: u32) {
     img.put_pixel(u, v, color.into());
 }
 
-impl Into<Rgb<u8>> for &Color {
-    fn into(self) -> Rgb<u8> {
+impl From<&Color> for Rgb<u8> {
+    fn from(value: &Color) -> Self {
         const SCALE_FACTOR: f64 = 255.999;
 
-        let ir = (SCALE_FACTOR * self.r()) as u8;
-        let ig = (SCALE_FACTOR * self.g()) as u8;
-        let ib = (SCALE_FACTOR * self.b()) as u8;
+        let ir = (SCALE_FACTOR * value.r()) as u8;
+        let ig = (SCALE_FACTOR * value.g()) as u8;
+        let ib = (SCALE_FACTOR * value.b()) as u8;
 
-        Rgb([ir, ig, ib])
+        Self([ir, ig, ib])
+    }
+}
+
+impl From<crate::vec3::Vec3> for Color {
+    fn from(value: crate::vec3::Vec3) -> Self {
+        Self(value.x(), value.y(), value.z())
     }
 }
 
