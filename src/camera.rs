@@ -131,12 +131,15 @@ impl CameraCore {
     }
 
     fn ray_color(&self, r: &Ray, depth: u32, world: &Hittable) -> Color {
+        // Used to solve shadow acne problem, preventing rays from colliding with the same surface they just did
+        const SURFACE_HOLDOFF_DIST: f64 = 0.001;
+
         if depth <= 0 {
             // exceded bounce limit, no more light gathered
             return Color::black();
         }
 
-        if let Some(rec) = world.hit(r, 0.0..=INFINITY) {
+        if let Some(rec) = world.hit(r, SURFACE_HOLDOFF_DIST..=INFINITY) {
             let dir = Vec3::random_on_hemisphere(&rec.normal);
             return 0.5 * self.ray_color(&Ray::new(&rec.p, &dir), depth - 1, world);
         }
