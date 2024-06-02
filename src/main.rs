@@ -7,6 +7,7 @@ use ray::Ray;
 use vec3::{Point3, Vec3};
 
 mod color;
+mod hittable;
 mod ray;
 mod vec3;
 
