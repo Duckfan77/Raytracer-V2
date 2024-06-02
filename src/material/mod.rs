@@ -1,7 +1,10 @@
+pub mod dielectric;
 pub mod lambertian;
 pub mod metal;
 
 use std::sync::Arc;
+
+use dielectric::refract;
 
 use crate::{color::Color, hittable::HitRecord, ray::Ray, vec3::Vec3};
 
@@ -11,6 +14,7 @@ pub type Mat = Arc<Material>;
 pub enum Material {
     Lambertian(lambertian::Lambertian),
     Metal(metal::Metal),
+    Dielectric(dielectric::Dielectric),
 }
 
 impl From<lambertian::Lambertian> for Arc<Material> {
@@ -34,6 +38,18 @@ impl From<metal::Metal> for Arc<Material> {
 impl From<metal::Metal> for Material {
     fn from(value: metal::Metal) -> Self {
         Material::Metal(value)
+    }
+}
+
+impl From<dielectric::Dielectric> for Arc<Material> {
+    fn from(value: dielectric::Dielectric) -> Self {
+        Arc::new(Material::Dielectric(value))
+    }
+}
+
+impl From<dielectric::Dielectric> for Material {
+    fn from(value: dielectric::Dielectric) -> Self {
+        Material::Dielectric(value)
     }
 }
 
@@ -70,6 +86,20 @@ impl Material {
                 } else {
                     None
                 }
+            }
+
+            Dielectric(d) => {
+                let attenuation = Color::white();
+                let ri = if rec.front_face {
+                    1.0 / d.refraction_index
+                } else {
+                    d.refraction_index
+                };
+
+                let unit_dir = r_in.direction().unit_vector();
+                let refracted = refract(unit_dir, rec.normal, ri);
+
+                Some((attenuation, Ray::new(&rec.p, &refracted)))
             }
         }
     }
