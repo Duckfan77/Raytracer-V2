@@ -10,19 +10,30 @@ mod color;
 mod ray;
 mod vec3;
 
-fn hit_sphere(center: &Vec3, radius: f64, r: &Ray) -> bool {
+///
+/// Returns None if there is no point of collision. Returns Some(t) where t is the closest hit point when a hit exists
+///
+fn hit_sphere(center: &Vec3, radius: f64, r: &Ray) -> Option<f64> {
     let oc = *center - *r.origin();
     let a = r.direction().dot(r.direction());
     let b = -2.0 * r.direction().dot(&oc);
     let c = oc.dot(&oc) - radius * radius;
     let discriminant = b * b - 4.0 * a * c;
 
-    discriminant > 0.0
+    if discriminant < 0.0 {
+        None
+    } else {
+        Some((-b - f64::sqrt(discriminant)) / (2.0 * a))
+    }
 }
 
 fn ray_color(r: &Ray) -> Color {
-    if hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r) {
-        return Color::new(1.0, 0.0, 0.0);
+    if let Some(t) = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r) {
+        if t > 0.0 {
+            #[allow(non_snake_case)]
+            let N = Vec3::unit_vector(&(r.at(t) - Vec3::new(0.0, 0.0, -1.0)));
+            return 0.5 * Color::new(N.x() + 1., N.y() + 1., N.z() + 1.);
+        }
     }
 
     // Basic gradient. This is expected to have a small horizontal gradient to go with the vertical gradient,
