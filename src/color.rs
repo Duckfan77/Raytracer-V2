@@ -9,8 +9,12 @@ use image::{Rgb, RgbImage};
 pub struct Color(f64, f64, f64);
 
 impl Color {
-    pub fn new_e() -> Self {
+    pub fn black() -> Self {
         Self(0.0, 0.0, 0.0)
+    }
+
+    pub fn white() -> Self {
+        Self(1.0, 1.0, 1.0)
     }
 
     pub fn new(e0: f64, e1: f64, e2: f64) -> Self {
