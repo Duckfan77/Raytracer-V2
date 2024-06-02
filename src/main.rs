@@ -1,11 +1,9 @@
-use std::sync::Arc;
-
 use anyhow::Result;
 use camera::Camera;
 use color::Color;
 use hittable::{hittable_list::HittableList, sphere::Sphere};
 
-use material::{lambertian::Lambertian, Material};
+use material::{lambertian::Lambertian, metal::Metal, Mat};
 use vec3::Point3;
 
 mod camera;
@@ -18,10 +16,33 @@ mod vec3;
 
 fn main() -> Result<()> {
     // World
-    let mat: Arc<Material> = Lambertian::new(Color::new(0.5, 0.5, 0.5)).into();
+    let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
+    let material_center: Mat = Lambertian::new(Color::new(0.1, 0.2, 0.5)).into();
+    let material_left: Mat = Metal::new(Color::new(0.8, 0.8, 0.8)).into();
+    let material_right: Mat = Metal::new(Color::new(0.8, 0.6, 0.2)).into();
+
     let mut world_list = HittableList::new();
-    world_list.add(Sphere::new(&Point3::new(0., 0., -1.), 0.5, mat.clone()).into());
-    world_list.add(Sphere::new(&Point3::new(0., -100.5, -1.), 100., mat.clone()).into());
+    world_list.add(Sphere::new(
+        &Point3::new(0.0, -100.5, -1.0),
+        100.0,
+        material_ground,
+    ));
+    world_list.add(Sphere::new(
+        &Point3::new(0.0, 0.0, -1.2),
+        0.5,
+        material_center,
+    ));
+    world_list.add(Sphere::new(
+        &Point3::new(-1.0, 0.0, -1.0),
+        0.5,
+        material_left,
+    ));
+    world_list.add(Sphere::new(
+        &Point3::new(1.0, 0.0, -1.0),
+        0.5,
+        material_right,
+    ));
+
     let world = world_list.into();
 
     // Camera and Render
