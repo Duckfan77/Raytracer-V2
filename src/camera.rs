@@ -147,8 +147,10 @@ impl CameraCore {
         }
 
         if let Some(rec) = world.hit(r, SURFACE_HOLDOFF_DIST..=INFINITY) {
-            let dir = rec.normal + Vec3::random_unit_vector();
-            return 0.5 * self.ray_color(&Ray::new(&rec.p, &dir), depth - 1, world);
+            if let Some((attenuation, scattered)) = rec.mat.scatter(r, &rec) {
+                return attenuation * self.ray_color(&scattered, depth - 1, world);
+            }
+            return Color::black();
         }
 
         // Basic gradient. This is expected to have a small horizontal gradient to go with the vertical gradient,
