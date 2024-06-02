@@ -2,6 +2,7 @@ use std::{env, io::Write};
 
 use anyhow::Result;
 use color::{write_color, Color};
+use hittable::{sphere, Hittable};
 use image::RgbImage;
 use ray::Ray;
 use vec3::{Point3, Vec3};
@@ -11,30 +12,15 @@ mod hittable;
 mod ray;
 mod vec3;
 
-///
-/// Returns None if there is no point of collision. Returns Some(t) where t is the closest hit point when a hit exists
-///
-fn hit_sphere(center: &Vec3, radius: f64, r: &Ray) -> Option<f64> {
-    let oc = *center - *r.origin();
-    let a = r.direction().length_squared();
-    let h = r.direction().dot(&oc);
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = h * h - a * c;
-
-    if discriminant < 0.0 {
-        None
-    } else {
-        Some((h - f64::sqrt(discriminant)) / a)
-    }
-}
-
 fn ray_color(r: &Ray) -> Color {
-    if let Some(t) = hit_sphere(&Vec3::new(0.0, 0.0, -1.0), 0.5, r) {
-        if t > 0.0 {
-            #[allow(non_snake_case)]
-            let N = Vec3::unit_vector(&(r.at(t) - Vec3::new(0.0, 0.0, -1.0)));
-            return 0.5 * Color::new(N.x() + 1., N.y() + 1., N.z() + 1.);
-        }
+    let object = Hittable::Sphere(sphere::Sphere::new(&Vec3::new(0.0, 0.0, -1.0), 0.5));
+    if let Some(rec) = object.hit(r, 0.0, f64::INFINITY) {
+        return 0.5
+            * Color::new(
+                rec.normal.x() + 1.,
+                rec.normal.y() + 1.,
+                rec.normal.z() + 1.,
+            );
     }
 
     // Basic gradient. This is expected to have a small horizontal gradient to go with the vertical gradient,
