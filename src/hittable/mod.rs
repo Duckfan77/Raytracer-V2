@@ -8,7 +8,7 @@ use crate::{
 };
 
 ///
-/// p: Point on the Hittable where the hit occured
+/// p: Point on the Hittable where the hit occurred
 /// normal: The outward facing unit normal vector at the location of the hit
 /// t: the time of the hit
 /// front_face: true when the ray faces opposite the outward facing normal, false otherwise

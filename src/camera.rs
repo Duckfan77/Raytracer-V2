@@ -135,7 +135,7 @@ impl CameraCore {
         const SURFACE_HOLDOFF_DIST: f64 = 0.001;
 
         if depth <= 0 {
-            // exceded bounce limit, no more light gathered
+            // exceeded bounce limit, no more light gathered
             return Color::black();
         }
 
