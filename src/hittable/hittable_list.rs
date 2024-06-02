@@ -16,8 +16,8 @@ impl HittableList {
         self.objects.clear();
     }
 
-    pub fn add(&mut self, object: Hittable) {
-        self.objects.push(object);
+    pub fn add(&mut self, object: impl Into<Hittable>) {
+        self.objects.push(object.into());
     }
 }
 

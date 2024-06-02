@@ -3,7 +3,7 @@ use std::sync::Arc;
 use anyhow::Result;
 use camera::Camera;
 use color::Color;
-use hittable::{hittable_list::HittableList, sphere::Sphere, Hittable};
+use hittable::{hittable_list::HittableList, sphere::Sphere};
 
 use material::{lambertian::Lambertian, Material};
 use vec3::Point3;
@@ -19,18 +19,10 @@ mod vec3;
 fn main() -> Result<()> {
     // World
     let mat: Arc<Material> = Lambertian::new(Color::new(0.5, 0.5, 0.5)).into();
-    let mut world = HittableList::new();
-    world.add(Hittable::Sphere(Sphere::new(
-        &Point3::new(0., 0., -1.),
-        0.5,
-        mat.clone(),
-    )));
-    world.add(Hittable::Sphere(Sphere::new(
-        &Point3::new(0., -100.5, -1.),
-        100.,
-        mat.clone(),
-    )));
-    let world = &Hittable::HittableList(world);
+    let mut world_list = HittableList::new();
+    world_list.add(Sphere::new(&Point3::new(0., 0., -1.), 0.5, mat.clone()).into());
+    world_list.add(Sphere::new(&Point3::new(0., -100.5, -1.), 100., mat.clone()).into());
+    let world = world_list.into();
 
     // Camera and Render
     let cam = Camera {
@@ -40,5 +32,5 @@ fn main() -> Result<()> {
         max_depth: 50,
     };
 
-    cam.render(world)
+    cam.render(&world)
 }

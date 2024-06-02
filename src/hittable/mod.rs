@@ -44,6 +44,18 @@ pub enum Hittable {
     HittableList(hittable_list::HittableList),
 }
 
+impl From<sphere::Sphere> for Hittable {
+    fn from(value: sphere::Sphere) -> Self {
+        Hittable::Sphere(value)
+    }
+}
+
+impl From<hittable_list::HittableList> for Hittable {
+    fn from(value: hittable_list::HittableList) -> Self {
+        Hittable::HittableList(value)
+    }
+}
+
 impl Hittable {
     pub fn hit(&self, r: &Ray, ray_t: Interval) -> Option<HitRecord> {
         use Hittable::*;
