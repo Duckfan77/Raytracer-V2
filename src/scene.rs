@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use std::f64::consts::PI;
+
 use crate::{
     camera::Camera,
     color::Color,
@@ -25,6 +27,7 @@ pub fn two_lambertians() -> (Hittable, Camera) {
         image_width: 480,
         samples_per_pixel: 100,
         max_depth: 50,
+        vfov: 90.0,
     };
 
     (world.into(), cam)
@@ -64,6 +67,7 @@ pub fn smooth_metal() -> (Hittable, Camera) {
         image_width: 480,
         samples_per_pixel: 100,
         max_depth: 50,
+        vfov: 90.0,
     };
 
     (world.into(), cam)
@@ -103,6 +107,7 @@ pub fn fuzzed_metal() -> (Hittable, Camera) {
         image_width: 480,
         samples_per_pixel: 100,
         max_depth: 50,
+        vfov: 90.0,
     };
 
     (world.into(), cam)
@@ -142,6 +147,7 @@ pub fn solid_glass() -> (Hittable, Camera) {
         image_width: 480,
         samples_per_pixel: 100,
         max_depth: 50,
+        vfov: 90.0,
     };
 
     (world.into(), cam)
@@ -181,6 +187,7 @@ pub fn air_bubble() -> (Hittable, Camera) {
         image_width: 480,
         samples_per_pixel: 100,
         max_depth: 50,
+        vfov: 90.0,
     };
 
     (world.into(), cam)
@@ -226,6 +233,28 @@ pub fn hollow_glass() -> (Hittable, Camera) {
         image_width: 480,
         samples_per_pixel: 100,
         max_depth: 50,
+        vfov: 90.0,
+    };
+
+    (world.into(), cam)
+}
+
+pub fn two_spheres() -> (Hittable, Camera) {
+    let mut world = HittableList::new();
+
+    let r = (PI / 4.0).cos();
+    let material_left: Mat = Lambertian::new(Color::new(0.0, 0.0, 1.0)).into();
+    let material_right: Mat = Lambertian::new(Color::new(1.0, 0.0, 0.0)).into();
+
+    world.add(Sphere::new(&Point3::new(-r, 0.0, -1.0), r, material_left));
+    world.add(Sphere::new(&Point3::new(r, 0.0, -1.0), r, material_right));
+
+    let cam = Camera {
+        aspect_ratio: 16.0 / 9.0,
+        image_width: 480,
+        samples_per_pixel: 100,
+        max_depth: 50,
+        vfov: 90.0,
     };
 
     (world.into(), cam)

@@ -12,7 +12,7 @@ mod scene;
 mod vec3;
 
 fn main() -> Result<()> {
-    let (world, cam) = hollow_glass();
+    let (world, cam) = two_spheres();
 
     cam.render(&world)
 }

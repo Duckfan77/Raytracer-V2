@@ -17,6 +17,7 @@ pub struct Camera {
     pub image_width: u32,
     pub samples_per_pixel: u32,
     pub max_depth: u32,
+    pub vfov: f64,
 }
 
 impl Camera {
@@ -27,6 +28,7 @@ impl Camera {
             image_width: 100,
             samples_per_pixel: 10,
             max_depth: 10,
+            vfov: 90.0,
         }
     }
 
@@ -96,6 +98,7 @@ impl CameraCore {
         let image_width = params.image_width;
         let samples_per_pixel = params.samples_per_pixel;
         let max_depth = params.max_depth;
+        let vfov = params.vfov;
 
         let image_height = (image_width as f64 / aspect_ratio) as u32;
         let image_height = if image_height < 1 { 1 } else { image_height };
@@ -106,7 +109,9 @@ impl CameraCore {
 
         // Viewport Dimensions
         let focal_length = 1.0; // Distance between the camera center and the viewport
-        let viewport_height = 2.0;
+        let theta = vfov.to_radians();
+        let h = (theta / 2.0).tan();
+        let viewport_height = 2.0 * h * focal_length;
         let viewport_width = viewport_height * (image_width as f64 / image_height as f64);
 
         // Viewport Vectors
