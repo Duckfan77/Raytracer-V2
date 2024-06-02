@@ -27,7 +27,8 @@ fn main() -> Result<()> {
     // Camera and Render
     let cam = Camera {
         aspect_ratio: 16.0 / 9.0,
-        image_width: 400,
+        image_width: 480,
+        samples_per_pixel: 100,
     };
 
     cam.render(world)

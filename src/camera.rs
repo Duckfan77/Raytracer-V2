@@ -13,6 +13,7 @@ use crate::{
 pub struct Camera {
     pub aspect_ratio: f64,
     pub image_width: u32,
+    pub samples_per_pixel: u32,
 }
 
 impl Camera {
@@ -21,6 +22,7 @@ impl Camera {
         Self {
             aspect_ratio: 1.0,
             image_width: 100,
+            samples_per_pixel: 10,
         }
     }
 
@@ -32,13 +34,15 @@ impl Camera {
 struct CameraCore {
     #[allow(dead_code)]
     aspect_ratio: f64, // Ratio of image width over height
-    image_width: u32, // Rendered image width in pixel count
+    image_width: u32,       // Rendered image width in pixel count
+    samples_per_pixel: u32, // Number of samples for each pixel
 
-    image_height: u32,     // Rendered image height
-    center: Point3,        // Camera center
-    pixel_00_loc: Point3,  // Location of pixel 0, 0
-    pixel_delta_u: Point3, // Offset to pixel to the right
-    pixel_delta_v: Point3, // Offset to pixel below
+    image_height: u32,        // Rendered image height
+    pixel_samples_scale: f64, // Color scale factor for a sum of pixel samples
+    center: Point3,           // Camera center
+    pixel_00_loc: Point3,     // Location of pixel 0, 0
+    pixel_delta_u: Point3,    // Offset to pixel to the right
+    pixel_delta_v: Point3,    // Offset to pixel below
 }
 
 impl CameraCore {
@@ -47,18 +51,20 @@ impl CameraCore {
 
         let mut stdout = std::io::stdout().lock();
         for j in 0..self.image_height {
-            write!(stdout, "\rScanlines remaining: {}", self.image_height - j)?;
+            write!(
+                stdout,
+                "\rScanlines remaining: {}                         ",
+                self.image_height - j
+            )?;
             stdout.flush()?;
             for i in 0..self.image_width {
-                let pixel_center = self.pixel_00_loc
-                    + (i as f64 * self.pixel_delta_u)
-                    + (j as f64 * self.pixel_delta_v);
-                let ray_direction = pixel_center - self.center;
-                let r = Ray::new(&self.center, &ray_direction);
+                let mut pixel_color = Color::black();
+                for _ in 0..self.samples_per_pixel {
+                    let r = self.get_ray(i, j);
+                    pixel_color += self.ray_color(&r, world)
+                }
 
-                let pixel_color = self.ray_color(&r, world);
-
-                write_color(&mut buf, &pixel_color, i, j)
+                write_color(&mut buf, &(pixel_color * self.pixel_samples_scale), i, j)
             }
         }
 
@@ -77,9 +83,12 @@ impl CameraCore {
     fn initialize(params: &Camera) -> Self {
         let aspect_ratio = params.aspect_ratio;
         let image_width = params.image_width;
+        let samples_per_pixel = params.samples_per_pixel;
 
         let image_height = (image_width as f64 / aspect_ratio) as u32;
         let image_height = if image_height < 1 { 1 } else { image_height };
+
+        let pixel_samples_scale = 1.0 / samples_per_pixel as f64;
 
         let center = Point3::new(0., 0., 0.);
 
@@ -104,7 +113,9 @@ impl CameraCore {
         Self {
             aspect_ratio,
             image_width,
+            samples_per_pixel,
             image_height,
+            pixel_samples_scale,
             center,
             pixel_00_loc,
             pixel_delta_u,
@@ -124,4 +135,27 @@ impl CameraCore {
         let a = 0.5 * (unit_direction.y() + 1.0); // convert y coordinate to between 0 and 1
         (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
     }
+
+    ///
+    /// Constructs a camera ray originating from the origin and directed at a randomly
+    /// sampled point around the pixel at (i, j)
+    ///
+    fn get_ray(&self, i: u32, j: u32) -> Ray {
+        let offset = sample_square();
+        let pixel_sample = self.pixel_00_loc
+            + ((i as f64 + offset.x()) * self.pixel_delta_u)
+            + ((j as f64 + offset.y()) * self.pixel_delta_v);
+
+        let ray_dir = pixel_sample - self.center;
+
+        Ray::new(&self.center, &ray_dir)
+    }
+}
+
+fn sample_square() -> Vec3 {
+    Vec3::new(
+        rand::random::<f64>() - 0.5,
+        rand::random::<f64>() - 0.5,
+        0.0,
+    )
 }
