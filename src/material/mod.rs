@@ -1,4 +1,5 @@
 pub mod lambertian;
+pub mod metal;
 
 use std::sync::Arc;
 
@@ -7,6 +8,7 @@ use crate::{color::Color, hittable::HitRecord, ray::Ray, vec3::Vec3};
 #[non_exhaustive]
 pub enum Material {
     Lambertian(lambertian::Lambertian),
+    Metal(metal::Metal),
 }
 
 impl From<lambertian::Lambertian> for Arc<Material> {
@@ -21,6 +23,18 @@ impl From<lambertian::Lambertian> for Material {
     }
 }
 
+impl From<metal::Metal> for Arc<Material> {
+    fn from(value: metal::Metal) -> Self {
+        Arc::new(Material::Metal(value))
+    }
+}
+
+impl From<metal::Metal> for Material {
+    fn from(value: metal::Metal) -> Self {
+        Material::Metal(value)
+    }
+}
+
 impl Material {
     ///
     /// Return:
@@ -29,7 +43,7 @@ impl Material {
     /// defines how much and in what color the ray should be attenuated by this
     /// bounce
     ///
-    pub fn scatter(&self, _r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
+    pub fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
         use Material::*;
         match self {
             Lambertian(l) => {
@@ -42,6 +56,12 @@ impl Material {
 
                 let scattered = Ray::new(&rec.p, &scatter_dir);
                 Some((l.albedo, scattered))
+            }
+
+            Metal(m) => {
+                let reflected = r_in.direction().reflect(&rec.normal);
+                let scattered = Ray::new(&rec.p, &reflected);
+                Some((m.albedo, scattered))
             }
         }
     }

@@ -71,6 +71,13 @@ impl Vec3 {
         }
     }
 
+    ///
+    /// Reflects self off the plane defined by `normal`
+    ///
+    pub fn reflect(&self, normal: &Vec3) -> Self {
+        *self - 2.0 * self.dot(normal) * *normal
+    }
+
     pub fn x(&self) -> f64 {
         self.0
     }
