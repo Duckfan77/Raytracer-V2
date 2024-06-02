@@ -4,7 +4,7 @@ use color::Color;
 use hittable::{hittable_list::HittableList, sphere::Sphere};
 
 use material::{
-    dielectric::{Dielectric, RI_AIR, RI_WATER},
+    dielectric::{Dielectric, RI_AIR, RI_GLASS, RI_WATER},
     lambertian::Lambertian,
     metal::Metal,
     Mat,
@@ -23,7 +23,8 @@ fn main() -> Result<()> {
     // World
     let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
     let material_center: Mat = Lambertian::new(Color::new(0.1, 0.2, 0.5)).into();
-    let material_left: Mat = Dielectric::new(RI_AIR / RI_WATER).into();
+    let material_left: Mat = Dielectric::new(RI_GLASS).into();
+    let material_bubble: Mat = Dielectric::new(RI_AIR / RI_GLASS).into(); // Air within Glass
     let material_right: Mat = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0).into();
 
     let mut world_list = HittableList::new();
@@ -41,6 +42,11 @@ fn main() -> Result<()> {
         &Point3::new(-1.0, 0.0, -1.0),
         0.5,
         material_left,
+    ));
+    world_list.add(Sphere::new(
+        &Point3::new(-1.0, 0.0, -1.0),
+        0.4,
+        material_bubble,
     ));
     world_list.add(Sphere::new(
         &Point3::new(1.0, 0.0, -1.0),
