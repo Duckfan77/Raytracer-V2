@@ -2,7 +2,11 @@ use std::{env, io::Write};
 
 use anyhow::Result;
 use color::{write_color, Color};
-use hittable::{sphere, Hittable};
+use hittable::{
+    hittable_list::HittableList,
+    sphere::{self, Sphere},
+    Hittable,
+};
 use image::RgbImage;
 use ray::Ray;
 use vec3::{Point3, Vec3};
@@ -12,9 +16,8 @@ mod hittable;
 mod ray;
 mod vec3;
 
-fn ray_color(r: &Ray) -> Color {
-    let object = Hittable::Sphere(sphere::Sphere::new(&Vec3::new(0.0, 0.0, -1.0), 0.5));
-    if let Some(rec) = object.hit(r, 0.0, f64::INFINITY) {
+fn ray_color(r: &Ray, world: &Hittable) -> Color {
+    if let Some(rec) = world.hit(r, 0.0, f64::INFINITY) {
         return 0.5 * (Color::from(rec.normal.into()) + Color::white());
     }
 
@@ -34,6 +37,18 @@ fn main() -> Result<()> {
     // Calculate image height, ensure it's at least 1
     let image_height = (image_width as f64 / aspect_ratio) as u32;
     let image_height = if image_height > 0 { image_height } else { 1 };
+
+    // World
+    let mut world = HittableList::new();
+    world.add(Hittable::Sphere(Sphere::new(
+        &Point3::new(0., 0., -1.),
+        0.5,
+    )));
+    world.add(Hittable::Sphere(Sphere::new(
+        &Point3::new(0., -100.5, -1.),
+        100.,
+    )));
+    let world = &Hittable::HittableList(world);
 
     // Camera
     let focal_length = 1.0; // Distance between the camera center and the viewport
@@ -67,7 +82,7 @@ fn main() -> Result<()> {
             let ray_direction = pixel_center - camera_center;
             let r = Ray::new(&camera_center, &ray_direction);
 
-            let pixel_color = ray_color(&r);
+            let pixel_color = ray_color(&r, world);
 
             write_color(&mut buf, &pixel_color, i, j)
         }
