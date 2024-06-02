@@ -97,9 +97,19 @@ impl Material {
                 };
 
                 let unit_dir = r_in.direction().unit_vector();
-                let refracted = refract(unit_dir, rec.normal, ri);
 
-                Some((attenuation, Ray::new(&rec.p, &refracted)))
+                let cos_theta = f64::min(Vec3::dot(&-unit_dir, &rec.normal), 1.0);
+                let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+
+                let direction = if ri * sin_theta > 1.0 {
+                    // Must Reflect
+                    Vec3::reflect(&unit_dir, &rec.normal)
+                } else {
+                    // Can Refract
+                    refract(unit_dir, rec.normal, ri)
+                };
+
+                Some((attenuation, Ray::new(&rec.p, &direction)))
             }
         }
     }

@@ -14,6 +14,15 @@ pub(super) fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
     r_out_perp + r_out_parallel
 }
 
+pub use refractive_indices::*;
+
+#[allow(dead_code)]
+mod refractive_indices {
+    pub static RI_AIR: f64 = 1.0;
+    pub static RI_GLASS: f64 = 1.5;
+    pub static RI_WATER: f64 = 1.333;
+    pub static RI_DIAMOND: f64 = 2.417;
+}
 pub struct Dielectric {
     ///
     /// Refractive index in vacuum or air, or ratio of the material's refractive index over the
