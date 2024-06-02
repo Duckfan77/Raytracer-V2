@@ -1,3 +1,4 @@
+pub mod hittable_list;
 pub mod sphere;
 
 use crate::{
@@ -34,6 +35,7 @@ impl HitRecord {
 #[non_exhaustive]
 pub enum Hittable {
     Sphere(sphere::Sphere),
+    HittableList(hittable_list::HittableList),
 }
 
 impl Hittable {
@@ -77,6 +79,17 @@ impl Hittable {
                         front_face,
                     })
                 }
+            }
+            HittableList(h) => {
+                let mut best_so_far = ray_tmax;
+                let mut temp_rec = None;
+                for object in h.objects.iter() {
+                    if let Some(rec) = object.hit(r, ray_tmin, best_so_far) {
+                        best_so_far = rec.t;
+                        temp_rec = Some(rec);
+                    }
+                }
+                temp_rec
             }
         }
     }
