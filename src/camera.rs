@@ -126,7 +126,8 @@ impl CameraCore {
 
     fn ray_color(&self, r: &Ray, world: &Hittable) -> Color {
         if let Some(rec) = world.hit(r, 0.0..=INFINITY) {
-            return 0.5 * (Color::from(rec.normal) + Color::white());
+            let dir = Vec3::random_on_hemisphere(&rec.normal);
+            return 0.5 * self.ray_color(&Ray::new(&rec.p, &dir), world);
         }
 
         // Basic gradient. This is expected to have a small horizontal gradient to go with the vertical gradient,
