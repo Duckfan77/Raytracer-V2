@@ -106,6 +106,13 @@ impl Vec3 {
     pub fn unit_vector(&self) -> Vec3 {
         *self / self.length()
     }
+
+    pub fn near_zero(&self) -> bool {
+        const NEAR_ZERO_THRESHOLD: f64 = 1e-8;
+        self.0.abs() < NEAR_ZERO_THRESHOLD
+            && self.1.abs() < NEAR_ZERO_THRESHOLD
+            && self.2.abs() < NEAR_ZERO_THRESHOLD
+    }
 }
 
 impl Neg for Vec3 {
