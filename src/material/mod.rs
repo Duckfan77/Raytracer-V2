@@ -2,8 +2,6 @@ pub mod lambertian;
 
 use std::sync::Arc;
 
-use lambertian::Lambertian;
-
 use crate::{color::Color, hittable::HitRecord, ray::Ray, vec3::Vec3};
 
 #[non_exhaustive]
@@ -31,7 +29,7 @@ impl Material {
     /// defines how much and in what color the ray should be attenuated by this
     /// bounce
     ///
-    pub fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
+    pub fn scatter(&self, _r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
         use Material::*;
         match self {
             Lambertian(l) => {
