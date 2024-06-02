@@ -1,23 +1,20 @@
-use std::{env, io::Write};
+use std::{env, f64::INFINITY, io::Write};
 
 use anyhow::Result;
 use color::{write_color, Color};
-use hittable::{
-    hittable_list::HittableList,
-    sphere::{self, Sphere},
-    Hittable,
-};
+use hittable::{hittable_list::HittableList, sphere::Sphere, Hittable};
 use image::RgbImage;
 use ray::Ray;
 use vec3::{Point3, Vec3};
 
 mod color;
 mod hittable;
+mod interval;
 mod ray;
 mod vec3;
 
 fn ray_color(r: &Ray, world: &Hittable) -> Color {
-    if let Some(rec) = world.hit(r, 0.0, f64::INFINITY) {
+    if let Some(rec) = world.hit(r, 0.0..=INFINITY) {
         return 0.5 * (Color::from(rec.normal) + Color::white());
     }
 

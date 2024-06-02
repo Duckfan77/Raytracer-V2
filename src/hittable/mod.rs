@@ -2,6 +2,7 @@ pub mod hittable_list;
 pub mod sphere;
 
 use crate::{
+    interval::Interval,
     ray::Ray,
     vec3::{Point3, Vec3},
 };
@@ -39,7 +40,7 @@ pub enum Hittable {
 }
 
 impl Hittable {
-    pub fn hit(&self, r: &Ray, ray_tmin: f64, ray_tmax: f64) -> Option<HitRecord> {
+    pub fn hit(&self, r: &Ray, ray_t: Interval) -> Option<HitRecord> {
         use Hittable::*;
         match self {
             Sphere(s) => {
@@ -57,10 +58,10 @@ impl Hittable {
 
                 // Find the nearest root in the acceptable range
                 let mut root = (h - sqrtd) / a;
-                if root <= ray_tmin || ray_tmax <= root {
+                if root <= *ray_t.start() || *ray_t.end() <= root {
                     // root outside range
                     root = (h + sqrtd) / a;
-                    if root <= ray_tmin || ray_tmax <= root {
+                    if root <= *ray_t.start() || *ray_t.end() <= root {
                         // root outside range
                         return None;
                     }
@@ -81,10 +82,10 @@ impl Hittable {
                 }
             }
             HittableList(h) => {
-                let mut best_so_far = ray_tmax;
+                let mut best_so_far = *ray_t.end();
                 let mut temp_rec = None;
                 for object in h.objects.iter() {
-                    if let Some(rec) = object.hit(r, ray_tmin, best_so_far) {
+                    if let Some(rec) = object.hit(r, *ray_t.start()..=best_so_far) {
                         best_so_far = rec.t;
                         temp_rec = Some(rec);
                     }
