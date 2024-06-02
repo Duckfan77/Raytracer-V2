@@ -14,8 +14,24 @@ pub trait Surrounds {
     fn surrounds(&self, x: f64) -> bool;
 }
 
+pub trait Clamp {
+    fn clamp(&self, x: f64) -> f64;
+}
+
 impl Surrounds for RangeInclusive<f64> {
     fn surrounds(&self, x: f64) -> bool {
         *self.start() < x && x < *self.end()
+    }
+}
+
+impl Clamp for RangeInclusive<f64> {
+    fn clamp(&self, x: f64) -> f64 {
+        if x < *self.start() {
+            *self.start()
+        } else if x > *self.end() {
+            *self.end()
+        } else {
+            x
+        }
     }
 }

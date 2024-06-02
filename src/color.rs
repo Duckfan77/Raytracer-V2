@@ -5,6 +5,8 @@ use std::{
 
 use image::{Rgb, RgbImage};
 
+use crate::interval::{Clamp, Interval};
+
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Color(f64, f64, f64);
 
@@ -40,11 +42,12 @@ pub fn write_color(img: &mut RgbImage, color: &Color, u: u32, v: u32) {
 
 impl From<&Color> for Rgb<u8> {
     fn from(value: &Color) -> Self {
-        const SCALE_FACTOR: f64 = 255.999;
+        const SCALE_FACTOR: f64 = 256.0;
+        const INTENSITY: Interval = 0.0..=0.999;
 
-        let ir = (SCALE_FACTOR * value.r()) as u8;
-        let ig = (SCALE_FACTOR * value.g()) as u8;
-        let ib = (SCALE_FACTOR * value.b()) as u8;
+        let ir = (SCALE_FACTOR * INTENSITY.clamp(value.r())) as u8;
+        let ig = (SCALE_FACTOR * INTENSITY.clamp(value.g())) as u8;
+        let ib = (SCALE_FACTOR * INTENSITY.clamp(value.b())) as u8;
 
         Self([ir, ig, ib])
     }
