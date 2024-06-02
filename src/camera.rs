@@ -2,6 +2,7 @@ use std::{env, f64::INFINITY, io::Write};
 
 use anyhow::Result;
 use image::RgbImage;
+use rand::distributions::{Distribution, Uniform};
 
 use crate::{
     color::{write_color, Color},
@@ -152,10 +153,14 @@ impl CameraCore {
     }
 }
 
+static SQUARE_DIST: once_cell::sync::Lazy<Uniform<f64>> =
+    once_cell::sync::Lazy::new(|| Uniform::from(-0.5..0.5));
+
 fn sample_square() -> Vec3 {
+    let mut rng = rand::thread_rng();
     Vec3::new(
-        rand::random::<f64>() - 0.5,
-        rand::random::<f64>() - 0.5,
+        SQUARE_DIST.sample(&mut rng),
+        SQUARE_DIST.sample(&mut rng),
         0.0,
     )
 }
