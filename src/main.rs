@@ -15,12 +15,7 @@ mod vec3;
 fn ray_color(r: &Ray) -> Color {
     let object = Hittable::Sphere(sphere::Sphere::new(&Vec3::new(0.0, 0.0, -1.0), 0.5));
     if let Some(rec) = object.hit(r, 0.0, f64::INFINITY) {
-        return 0.5
-            * Color::new(
-                rec.normal.x() + 1.,
-                rec.normal.y() + 1.,
-                rec.normal.z() + 1.,
-            );
+        return 0.5 * (Color::from(rec.normal.into()) + Color::white());
     }
 
     // Basic gradient. This is expected to have a small horizontal gradient to go with the vertical gradient,
