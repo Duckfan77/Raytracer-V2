@@ -1,7 +1,11 @@
+use std::sync::Arc;
+
 use anyhow::Result;
 use camera::Camera;
+use color::Color;
 use hittable::{hittable_list::HittableList, sphere::Sphere, Hittable};
 
+use material::{lambertian::Lambertian, Material};
 use vec3::Point3;
 
 mod camera;
@@ -14,14 +18,17 @@ mod vec3;
 
 fn main() -> Result<()> {
     // World
+    let mat: Arc<Material> = Lambertian::new(Color::new(0.5, 0.5, 0.5)).into();
     let mut world = HittableList::new();
     world.add(Hittable::Sphere(Sphere::new(
         &Point3::new(0., 0., -1.),
         0.5,
+        mat.clone(),
     )));
     world.add(Hittable::Sphere(Sphere::new(
         &Point3::new(0., -100.5, -1.),
         100.,
+        mat.clone(),
     )));
     let world = &Hittable::HittableList(world);
 

@@ -1,8 +1,11 @@
 pub mod hittable_list;
 pub mod sphere;
 
+use std::sync::Arc;
+
 use crate::{
     interval::Interval,
+    material::Material,
     ray::Ray,
     vec3::{Point3, Vec3},
 };
@@ -10,12 +13,14 @@ use crate::{
 ///
 /// p: Point on the Hittable where the hit occurred
 /// normal: The outward facing unit normal vector at the location of the hit
+/// mat: The material of the object hit
 /// t: the time of the hit
 /// front_face: true when the ray faces opposite the outward facing normal, false otherwise
 ///
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
+    pub mat: Arc<Material>,
     pub t: f64,
     pub front_face: bool,
 }
@@ -70,12 +75,14 @@ impl Hittable {
                 {
                     let t = root;
                     let p = r.at(t);
+                    let mat = s.mat.clone();
                     let outward_normal = (p - s.center) / s.radius;
                     let (front_face, normal) = HitRecord::get_face_normal(r, &outward_normal);
 
                     Some(HitRecord {
                         t,
                         p,
+                        mat,
                         normal,
                         front_face,
                     })
