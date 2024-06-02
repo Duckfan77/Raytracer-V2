@@ -61,9 +61,15 @@ impl Material {
             }
 
             Metal(m) => {
-                let reflected = r_in.direction().reflect(&rec.normal);
+                let mut reflected = r_in.direction().reflect(&rec.normal);
+                reflected = reflected.unit_vector() + (m.fuzz * Vec3::random_unit_vector());
                 let scattered = Ray::new(&rec.p, &reflected);
-                Some((m.albedo, scattered))
+
+                if scattered.direction().dot(&rec.normal) > 0.0 {
+                    Some((m.albedo, scattered))
+                } else {
+                    None
+                }
             }
         }
     }

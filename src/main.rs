@@ -18,8 +18,8 @@ fn main() -> Result<()> {
     // World
     let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
     let material_center: Mat = Lambertian::new(Color::new(0.1, 0.2, 0.5)).into();
-    let material_left: Mat = Metal::new(Color::new(0.8, 0.8, 0.8)).into();
-    let material_right: Mat = Metal::new(Color::new(0.8, 0.6, 0.2)).into();
+    let material_left: Mat = Metal::new(Color::new(0.8, 0.8, 0.8), 0.3).into();
+    let material_right: Mat = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0).into();
 
     let mut world_list = HittableList::new();
     world_list.add(Sphere::new(
