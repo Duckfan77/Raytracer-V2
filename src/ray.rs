@@ -26,10 +26,12 @@ impl Ray {
         &self.dir
     }
 
+    #[allow(dead_code)]
     pub fn origin_mut(&mut self) -> &mut Point3 {
         &mut self.orig
     }
 
+    #[allow(dead_code)]
     pub fn direction_mut(&mut self) -> &mut Point3 {
         &mut self.dir
     }
