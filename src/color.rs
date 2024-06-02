@@ -1,11 +1,11 @@
 use std::{
     fmt::Display,
+    iter::Sum,
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub},
 };
 
-use image::{Rgb, RgbImage};
-
 use crate::interval::{Clamp, Interval};
+use image::{Rgb, RgbImage};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Color(f64, f64, f64);
@@ -48,6 +48,12 @@ pub fn write_color(img: &mut RgbImage, color: &Color, u: u32, v: u32) {
     img.put_pixel(u, v, color.into());
 }
 
+pub fn write_row(img: &mut RgbImage, row: &[Color], v: u32) {
+    for (u, color) in row.iter().enumerate() {
+        write_color(img, color, u as u32, v);
+    }
+}
+
 impl From<&Color> for Rgb<u8> {
     fn from(value: &Color) -> Self {
         const SCALE_FACTOR: f64 = 256.0;
@@ -68,6 +74,12 @@ impl From<&Color> for Rgb<u8> {
 impl From<crate::vec3::Vec3> for Color {
     fn from(value: crate::vec3::Vec3) -> Self {
         Self(value.x(), value.y(), value.z())
+    }
+}
+
+impl Sum for Color {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Color::black(), |a, b| a + b)
     }
 }
 

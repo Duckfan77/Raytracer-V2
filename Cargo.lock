@@ -725,6 +725,7 @@ dependencies = [
  "image",
  "once_cell",
  "rand",
+ "rayon",
 ]
 
 [[package]]

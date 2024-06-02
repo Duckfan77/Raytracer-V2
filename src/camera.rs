@@ -3,9 +3,10 @@ use std::{env, f64::INFINITY, io::Write};
 use anyhow::Result;
 use image::RgbImage;
 use rand::distributions::{Distribution, Uniform};
+use rayon::prelude::*;
 
 use crate::{
-    color::{write_color, Color},
+    color::{write_row, Color},
     hittable::Hittable,
     ray::Ray,
     vec3::{Point3, Vec3},
@@ -61,15 +62,21 @@ impl CameraCore {
                 self.image_height - j
             )?;
             stdout.flush()?;
-            for i in 0..self.image_width {
-                let mut pixel_color = Color::black();
-                for _ in 0..self.samples_per_pixel {
-                    let r = self.get_ray(i, j);
-                    pixel_color += self.ray_color(&r, self.max_depth, world)
-                }
+            let row: Vec<Color> = (0..self.image_width)
+                .into_par_iter()
+                .map(|i| {
+                    (0..self.samples_per_pixel)
+                        .into_iter()
+                        .map(|_| {
+                            let r = self.get_ray(i, j);
+                            self.ray_color(&r, self.max_depth, world)
+                        })
+                        .sum::<Color>()
+                        * self.pixel_samples_scale
+                })
+                .collect();
 
-                write_color(&mut buf, &(pixel_color * self.pixel_samples_scale), i, j)
-            }
+            write_row(&mut buf, &row, j)
         }
 
         buf.save_with_format(
