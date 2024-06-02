@@ -140,7 +140,7 @@ impl CameraCore {
         }
 
         if let Some(rec) = world.hit(r, SURFACE_HOLDOFF_DIST..=INFINITY) {
-            let dir = Vec3::random_on_hemisphere(&rec.normal);
+            let dir = rec.normal + Vec3::random_unit_vector();
             return 0.5 * self.ray_color(&Ray::new(&rec.p, &dir), depth - 1, world);
         }
 
