@@ -15,6 +15,7 @@ pub struct Camera {
     pub aspect_ratio: f64,
     pub image_width: u32,
     pub samples_per_pixel: u32,
+    pub max_depth: u32,
 }
 
 impl Camera {
@@ -24,6 +25,7 @@ impl Camera {
             aspect_ratio: 1.0,
             image_width: 100,
             samples_per_pixel: 10,
+            max_depth: 10,
         }
     }
 
@@ -37,6 +39,7 @@ struct CameraCore {
     aspect_ratio: f64, // Ratio of image width over height
     image_width: u32,       // Rendered image width in pixel count
     samples_per_pixel: u32, // Number of samples for each pixel
+    max_depth: u32,         // Maximum number of ray bounces into scene
 
     image_height: u32,        // Rendered image height
     pixel_samples_scale: f64, // Color scale factor for a sum of pixel samples
@@ -62,7 +65,7 @@ impl CameraCore {
                 let mut pixel_color = Color::black();
                 for _ in 0..self.samples_per_pixel {
                     let r = self.get_ray(i, j);
-                    pixel_color += self.ray_color(&r, world)
+                    pixel_color += self.ray_color(&r, self.max_depth, world)
                 }
 
                 write_color(&mut buf, &(pixel_color * self.pixel_samples_scale), i, j)
@@ -85,6 +88,7 @@ impl CameraCore {
         let aspect_ratio = params.aspect_ratio;
         let image_width = params.image_width;
         let samples_per_pixel = params.samples_per_pixel;
+        let max_depth = params.max_depth;
 
         let image_height = (image_width as f64 / aspect_ratio) as u32;
         let image_height = if image_height < 1 { 1 } else { image_height };
@@ -115,6 +119,8 @@ impl CameraCore {
             aspect_ratio,
             image_width,
             samples_per_pixel,
+            max_depth,
+
             image_height,
             pixel_samples_scale,
             center,
@@ -124,10 +130,15 @@ impl CameraCore {
         }
     }
 
-    fn ray_color(&self, r: &Ray, world: &Hittable) -> Color {
+    fn ray_color(&self, r: &Ray, depth: u32, world: &Hittable) -> Color {
+        if depth <= 0 {
+            // exceded bounce limit, no more light gathered
+            return Color::black();
+        }
+
         if let Some(rec) = world.hit(r, 0.0..=INFINITY) {
             let dir = Vec3::random_on_hemisphere(&rec.normal);
-            return 0.5 * self.ray_color(&Ray::new(&rec.p, &dir), world);
+            return 0.5 * self.ray_color(&Ray::new(&rec.p, &dir), depth - 1, world);
         }
 
         // Basic gradient. This is expected to have a small horizontal gradient to go with the vertical gradient,
