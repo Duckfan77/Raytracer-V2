@@ -36,6 +36,14 @@ impl Color {
     }
 }
 
+fn linear_to_gamma(linear_component: f64) -> f64 {
+    if linear_component > 0.0 {
+        linear_component.sqrt()
+    } else {
+        0.0
+    }
+}
+
 pub fn write_color(img: &mut RgbImage, color: &Color, u: u32, v: u32) {
     img.put_pixel(u, v, color.into());
 }
@@ -45,9 +53,13 @@ impl From<&Color> for Rgb<u8> {
         const SCALE_FACTOR: f64 = 256.0;
         const INTENSITY: Interval = 0.0..=0.999;
 
-        let ir = (SCALE_FACTOR * INTENSITY.clamp(value.r())) as u8;
-        let ig = (SCALE_FACTOR * INTENSITY.clamp(value.g())) as u8;
-        let ib = (SCALE_FACTOR * INTENSITY.clamp(value.b())) as u8;
+        let r = linear_to_gamma(value.r());
+        let g = linear_to_gamma(value.g());
+        let b = linear_to_gamma(value.b());
+
+        let ir = (SCALE_FACTOR * INTENSITY.clamp(r)) as u8;
+        let ig = (SCALE_FACTOR * INTENSITY.clamp(g)) as u8;
+        let ib = (SCALE_FACTOR * INTENSITY.clamp(b)) as u8;
 
         Self([ir, ig, ib])
     }
