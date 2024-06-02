@@ -4,7 +4,7 @@ pub mod metal;
 
 use std::sync::Arc;
 
-use dielectric::refract;
+use dielectric::{reflectance, refract};
 
 use crate::{color::Color, hittable::HitRecord, ray::Ray, vec3::Vec3};
 
@@ -101,13 +101,16 @@ impl Material {
                 let cos_theta = f64::min(Vec3::dot(&-unit_dir, &rec.normal), 1.0);
                 let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
-                let direction = if ri * sin_theta > 1.0 {
-                    // Must Reflect
-                    Vec3::reflect(&unit_dir, &rec.normal)
-                } else {
-                    // Can Refract
-                    refract(unit_dir, rec.normal, ri)
-                };
+                let cannot_refract = ri * sin_theta > 1.0;
+
+                let direction =
+                    if cannot_refract || reflectance(cos_theta, ri) > rand::random::<f64>() {
+                        // Reflect
+                        Vec3::reflect(&unit_dir, &rec.normal)
+                    } else {
+                        // Refract
+                        refract(unit_dir, rec.normal, ri)
+                    };
 
                 Some((attenuation, Ray::new(&rec.p, &direction)))
             }

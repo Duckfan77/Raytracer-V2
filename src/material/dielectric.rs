@@ -14,6 +14,13 @@ pub(super) fn refract(uv: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
     r_out_perp + r_out_parallel
 }
 
+pub(super) fn reflectance(cosine: f64, refraction_index: f64) -> f64 {
+    // Use Schlick's approximation for reflectance
+    let r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
+    let r0 = r0 * r0;
+    r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
+}
+
 pub use refractive_indices::*;
 
 #[allow(dead_code)]
