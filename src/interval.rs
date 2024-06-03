@@ -19,7 +19,7 @@ pub trait Clamp {
 }
 
 pub trait AabbHelper {
-    fn overlaps(&self, other: Self) -> bool;
+    #[allow(dead_code)]
     fn expand(&self, delta: f64) -> Self;
 }
 
@@ -42,12 +42,6 @@ impl Clamp for RangeInclusive<f64> {
 }
 
 impl AabbHelper for RangeInclusive<f64> {
-    fn overlaps(&self, other: Self) -> bool {
-        let t_min = f64::max(*self.start(), *other.start());
-        let t_max = f64::min(*self.end(), *other.end());
-        t_min < t_max
-    }
-
     fn expand(&self, delta: f64) -> Self {
         let padding = delta / 2.0;
         (self.start() - padding)..=(self.end() + padding)
