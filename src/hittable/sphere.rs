@@ -7,9 +7,9 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: &Point3, radius: f64, mat: impl Into<Material>) -> Self {
+    pub fn new(center: Point3, radius: f64, mat: impl Into<Material>) -> Self {
         Self {
-            center: *center,
+            center,
             radius,
             mat: mat.into(),
         }

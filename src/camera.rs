@@ -90,7 +90,7 @@ impl CameraCore {
                         .into_iter()
                         .map(|_| {
                             let r = self.get_ray(i, j);
-                            self.ray_color(&r, self.max_depth, world)
+                            self.ray_color(r, self.max_depth, world)
                         })
                         .sum::<Color>()
                         * self.pixel_samples_scale
@@ -134,8 +134,8 @@ impl CameraCore {
 
         // Calculate the u, v, w unit basis vectors for the camera coordinate frame.
         let w = (params.look_from - params.look_at).unit_vector();
-        let u = (params.v_up.cross(&w)).unit_vector();
-        let v = w.cross(&u);
+        let u = (params.v_up.cross(w)).unit_vector();
+        let v = w.cross(u);
 
         // Viewport Vectors
         let viewport_u = viewport_width * u; // Horizontal across the viewport, starting at the left
@@ -177,7 +177,7 @@ impl CameraCore {
         }
     }
 
-    fn ray_color(&self, r: &Ray, depth: u32, world: &Hittable) -> Color {
+    fn ray_color(&self, r: Ray, depth: u32, world: &Hittable) -> Color {
         // Used to solve shadow acne problem, preventing rays from colliding with the same surface they just did
         const SURFACE_HOLDOFF_DIST: f64 = 0.001;
 
@@ -188,7 +188,7 @@ impl CameraCore {
 
         if let Some(rec) = world.hit(r, SURFACE_HOLDOFF_DIST..=INFINITY) {
             if let Some((attenuation, scattered)) = rec.mat.scatter(r, &rec) {
-                return attenuation * self.ray_color(&scattered, depth - 1, world);
+                return attenuation * self.ray_color(scattered, depth - 1, world);
             }
             return Color::black();
         }
@@ -219,7 +219,7 @@ impl CameraCore {
 
         let ray_dir = pixel_sample - ray_origin;
 
-        Ray::new(&ray_origin, &ray_dir)
+        Ray::new(ray_origin, ray_dir)
     }
 
     ///

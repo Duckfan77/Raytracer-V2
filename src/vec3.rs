@@ -48,7 +48,7 @@ impl Vec3 {
         Vec3::random_in_unit_sphere().unit_vector()
     }
 
-    pub fn random_on_hemisphere(normal: &Vec3) -> Self {
+    pub fn random_on_hemisphere(normal: Vec3) -> Self {
         let on_sphere = Vec3::random_unit_vector();
         if on_sphere.dot(normal) > 0.0 {
             // In the same hemisphere as the normal
@@ -75,8 +75,8 @@ impl Vec3 {
     ///
     /// Reflects self off the plane defined by `normal`
     ///
-    pub fn reflect(&self, normal: &Vec3) -> Self {
-        *self - 2.0 * self.dot(normal) * *normal
+    pub fn reflect(&self, normal: Vec3) -> Self {
+        *self - 2.0 * self.dot(normal) * normal
     }
 
     pub fn x(&self) -> f64 {
@@ -99,11 +99,11 @@ impl Vec3 {
         self.length_squared().sqrt()
     }
 
-    pub fn dot(&self, other: &Self) -> f64 {
+    pub fn dot(&self, other: Self) -> f64 {
         self.0 * other.0 + self.1 * other.1 + self.2 * other.2
     }
 
-    pub fn cross(&self, other: &Self) -> Self {
+    pub fn cross(&self, other: Self) -> Self {
         Self(
             self.1 * other.2 - self.2 * other.1,
             self.2 * other.0 - self.0 * other.2,

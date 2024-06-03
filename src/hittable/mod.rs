@@ -24,12 +24,12 @@ pub struct HitRecord {
 }
 
 impl HitRecord {
-    fn get_face_normal(r: &Ray, outward_normal: &Vec3) -> (bool, Vec3) {
+    fn get_face_normal(r: Ray, outward_normal: Vec3) -> (bool, Vec3) {
         let front_face = r.direction().dot(outward_normal) < 0.0;
         let normal = if front_face {
-            *outward_normal
+            outward_normal
         } else {
-            -*outward_normal
+            -outward_normal
         };
 
         (front_face, normal)
@@ -55,13 +55,13 @@ impl From<hittable_list::HittableList> for Hittable {
 }
 
 impl Hittable {
-    pub fn hit(&self, r: &Ray, ray_t: Interval) -> Option<HitRecord> {
+    pub fn hit(&self, r: Ray, ray_t: Interval) -> Option<HitRecord> {
         use Hittable::*;
         match self {
             Sphere(s) => {
                 let oc = s.center - *r.origin();
                 let a = r.direction().length_squared();
-                let h = r.direction().dot(&oc);
+                let h = r.direction().dot(oc);
                 let c = oc.length_squared() - s.radius * s.radius;
                 let discriminant = h * h - a * c;
 
@@ -87,7 +87,7 @@ impl Hittable {
                     let p = r.at(t);
                     let mat = s.mat.clone();
                     let outward_normal = (p - s.center) / s.radius;
-                    let (front_face, normal) = HitRecord::get_face_normal(r, &outward_normal);
+                    let (front_face, normal) = HitRecord::get_face_normal(r, outward_normal);
 
                     Some(HitRecord {
                         t,

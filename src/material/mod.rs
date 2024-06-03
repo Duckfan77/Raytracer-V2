@@ -60,7 +60,7 @@ impl Material {
     /// defines how much and in what color the ray should be attenuated by this
     /// bounce
     ///
-    pub fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
+    pub fn scatter(&self, r_in: Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
         use Material::*;
         match self {
             Lambertian(l) => {
@@ -71,16 +71,16 @@ impl Material {
                     scatter_dir = rec.normal
                 }
 
-                let scattered = Ray::new(&rec.p, &scatter_dir);
+                let scattered = Ray::new(rec.p, scatter_dir);
                 Some((l.albedo, scattered))
             }
 
             Metal(m) => {
-                let mut reflected = r_in.direction().reflect(&rec.normal);
+                let mut reflected = r_in.direction().reflect(rec.normal);
                 reflected = reflected.unit_vector() + (m.fuzz * Vec3::random_unit_vector());
-                let scattered = Ray::new(&rec.p, &reflected);
+                let scattered = Ray::new(rec.p, reflected);
 
-                if scattered.direction().dot(&rec.normal) > 0.0 {
+                if scattered.direction().dot(rec.normal) > 0.0 {
                     Some((m.albedo, scattered))
                 } else {
                     None
@@ -97,7 +97,7 @@ impl Material {
 
                 let unit_dir = r_in.direction().unit_vector();
 
-                let cos_theta = f64::min(Vec3::dot(&-unit_dir, &rec.normal), 1.0);
+                let cos_theta = f64::min(Vec3::dot(&-unit_dir, rec.normal), 1.0);
                 let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
                 let cannot_refract = ri * sin_theta > 1.0;
@@ -105,13 +105,13 @@ impl Material {
                 let direction =
                     if cannot_refract || reflectance(cos_theta, ri) > rand::random::<f64>() {
                         // Reflect
-                        Vec3::reflect(&unit_dir, &rec.normal)
+                        Vec3::reflect(&unit_dir, rec.normal)
                     } else {
                         // Refract
                         refract(unit_dir, rec.normal, ri)
                     };
 
-                Some((attenuation, Ray::new(&rec.p, &direction)))
+                Some((attenuation, Ray::new(rec.p, direction)))
             }
         }
     }
