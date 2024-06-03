@@ -9,6 +9,7 @@ use dielectric::{reflectance, refract};
 use crate::{color::Color, hittable::HitRecord, ray::Ray, vec3::Vec3};
 
 #[non_exhaustive]
+#[derive(Clone)]
 pub enum Material {
     Lambertian(lambertian::Lambertian),
     Metal(metal::Metal),

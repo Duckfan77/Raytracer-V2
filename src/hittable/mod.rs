@@ -1,8 +1,6 @@
 pub mod hittable_list;
 pub mod sphere;
 
-use std::sync::Arc;
-
 use crate::{
     interval::Interval,
     material::Material,
@@ -20,7 +18,7 @@ use crate::{
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
-    pub mat: Arc<Material>,
+    pub mat: Material,
     pub t: f64,
     pub front_face: bool,
 }
