@@ -36,6 +36,10 @@ impl Ray {
         &self.dir
     }
 
+    pub fn time(&self) -> f64 {
+        self.time
+    }
+
     #[allow(dead_code)]
     pub fn origin_mut(&mut self) -> &mut Point3 {
         &mut self.orig

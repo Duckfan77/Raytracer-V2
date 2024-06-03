@@ -59,7 +59,8 @@ impl Hittable {
         use Hittable::*;
         match self {
             Sphere(s) => {
-                let oc = s.center - *r.origin();
+                let center = s.sphere_center(r.time());
+                let oc = center - *r.origin();
                 let a = r.direction().length_squared();
                 let h = r.direction().dot(oc);
                 let c = oc.length_squared() - s.radius * s.radius;
@@ -86,7 +87,7 @@ impl Hittable {
                     let t = root;
                     let p = r.at(t);
                     let mat = s.mat.clone();
-                    let outward_normal = (p - s.center) / s.radius;
+                    let outward_normal = (p - center) / s.radius;
                     let (front_face, normal) = HitRecord::get_face_normal(r, outward_normal);
 
                     Some(HitRecord {
