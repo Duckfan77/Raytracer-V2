@@ -1,5 +1,5 @@
 use crate::{
-    interval::{from_intervals, Interval},
+    interval::{from_intervals, Interval, EMPTY},
     ray::Ray,
     vec3::Point3,
 };
@@ -14,6 +14,14 @@ pub struct Aabb {
 impl Aabb {
     pub fn new(x: Interval, y: Interval, z: Interval) -> Self {
         Self { x, y, z }
+    }
+
+    pub fn empty() -> Self {
+        Self {
+            x: EMPTY,
+            y: EMPTY,
+            z: EMPTY,
+        }
     }
 
     pub fn from_points(a: Point3, b: Point3) -> Self {

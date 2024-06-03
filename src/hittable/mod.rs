@@ -121,7 +121,7 @@ impl Hittable {
         match self {
             Sphere(s) => s.bbox.clone(),
 
-            HittableList(_) => todo!(),
+            HittableList(h) => h.bbox.clone(),
         }
     }
 }
