@@ -10,7 +10,9 @@ use crate::{
     vec3::Point3,
 };
 
-pub fn two_lambertians() -> (Hittable, Camera) {
+// Worlds
+
+pub fn two_lambertians() -> Hittable {
     let mut world = HittableList::new();
 
     let mat: Mat = Lambertian::new(Color::new(0.5, 0.5, 0.5)).into();
@@ -22,18 +24,10 @@ pub fn two_lambertians() -> (Hittable, Camera) {
         mat.clone(),
     ));
 
-    let cam = Camera {
-        aspect_ratio: 16.0 / 9.0,
-        image_width: 480,
-        samples_per_pixel: 100,
-        max_depth: 50,
-        vfov: 90.0,
-    };
-
-    (world.into(), cam)
+    world.into()
 }
 
-pub fn smooth_metal() -> (Hittable, Camera) {
+pub fn smooth_metal() -> Hittable {
     let mut world = HittableList::new();
 
     let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
@@ -62,18 +56,10 @@ pub fn smooth_metal() -> (Hittable, Camera) {
         material_right,
     ));
 
-    let cam = Camera {
-        aspect_ratio: 16.0 / 9.0,
-        image_width: 480,
-        samples_per_pixel: 100,
-        max_depth: 50,
-        vfov: 90.0,
-    };
-
-    (world.into(), cam)
+    world.into()
 }
 
-pub fn fuzzed_metal() -> (Hittable, Camera) {
+pub fn fuzzed_metal() -> Hittable {
     let mut world = HittableList::new();
 
     let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
@@ -102,18 +88,10 @@ pub fn fuzzed_metal() -> (Hittable, Camera) {
         material_right,
     ));
 
-    let cam = Camera {
-        aspect_ratio: 16.0 / 9.0,
-        image_width: 480,
-        samples_per_pixel: 100,
-        max_depth: 50,
-        vfov: 90.0,
-    };
-
-    (world.into(), cam)
+    world.into()
 }
 
-pub fn solid_glass() -> (Hittable, Camera) {
+pub fn solid_glass() -> Hittable {
     let mut world = HittableList::new();
 
     let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
@@ -142,18 +120,10 @@ pub fn solid_glass() -> (Hittable, Camera) {
         material_right,
     ));
 
-    let cam = Camera {
-        aspect_ratio: 16.0 / 9.0,
-        image_width: 480,
-        samples_per_pixel: 100,
-        max_depth: 50,
-        vfov: 90.0,
-    };
-
-    (world.into(), cam)
+    world.into()
 }
 
-pub fn air_bubble() -> (Hittable, Camera) {
+pub fn air_bubble() -> Hittable {
     let mut world = HittableList::new();
 
     let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
@@ -182,18 +152,10 @@ pub fn air_bubble() -> (Hittable, Camera) {
         material_right,
     ));
 
-    let cam = Camera {
-        aspect_ratio: 16.0 / 9.0,
-        image_width: 480,
-        samples_per_pixel: 100,
-        max_depth: 50,
-        vfov: 90.0,
-    };
-
-    (world.into(), cam)
+    world.into()
 }
 
-pub fn hollow_glass() -> (Hittable, Camera) {
+pub fn hollow_glass() -> Hittable {
     let mut world = HittableList::new();
 
     let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
@@ -228,18 +190,10 @@ pub fn hollow_glass() -> (Hittable, Camera) {
         material_right,
     ));
 
-    let cam = Camera {
-        aspect_ratio: 16.0 / 9.0,
-        image_width: 480,
-        samples_per_pixel: 100,
-        max_depth: 50,
-        vfov: 90.0,
-    };
-
-    (world.into(), cam)
+    world.into()
 }
 
-pub fn two_spheres() -> (Hittable, Camera) {
+pub fn two_spheres() -> Hittable {
     let mut world = HittableList::new();
 
     let r = (PI / 4.0).cos();
@@ -249,13 +203,17 @@ pub fn two_spheres() -> (Hittable, Camera) {
     world.add(Sphere::new(&Point3::new(-r, 0.0, -1.0), r, material_left));
     world.add(Sphere::new(&Point3::new(r, 0.0, -1.0), r, material_right));
 
-    let cam = Camera {
+    world.into()
+}
+
+// Camera positions and layouts
+
+pub fn default_camera() -> Camera {
+    Camera {
         aspect_ratio: 16.0 / 9.0,
         image_width: 480,
         samples_per_pixel: 100,
         max_depth: 50,
         vfov: 90.0,
-    };
-
-    (world.into(), cam)
+    }
 }
