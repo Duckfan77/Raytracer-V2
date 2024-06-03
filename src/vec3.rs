@@ -17,10 +17,6 @@ pub struct Vec3(f64, f64, f64);
 static UNIT_SPHERE_DIST: Lazy<Uniform<f64>> = Lazy::new(|| Uniform::from(-1.0..1.0));
 
 impl Vec3 {
-    pub fn new_e() -> Self {
-        Self(0.0, 0.0, 0.0)
-    }
-
     pub fn new(e0: f64, e1: f64, e2: f64) -> Self {
         Self(e0, e1, e2)
     }
