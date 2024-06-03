@@ -12,8 +12,8 @@ mod scene;
 mod vec3;
 
 fn main() -> Result<()> {
-    let world = two_spheres();
-    let cam = default_camera();
+    let world = hollow_glass();
+    let cam = far_camera();
 
     cam.render(&world)
 }
