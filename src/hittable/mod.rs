@@ -2,6 +2,8 @@ mod aabb;
 pub mod hittable_list;
 pub mod sphere;
 
+use aabb::Aabb;
+
 use crate::{
     interval::Interval,
     material::Material,
@@ -111,6 +113,15 @@ impl Hittable {
                 }
                 temp_rec
             }
+        }
+    }
+
+    pub fn bounding_box(&self) -> Aabb {
+        use Hittable::*;
+        match self {
+            Sphere(s) => s.bbox.clone(),
+
+            HittableList(_) => todo!(),
         }
     }
 }
