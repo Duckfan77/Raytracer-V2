@@ -1,4 +1,5 @@
 mod aabb;
+pub mod bvh;
 pub mod hittable_list;
 pub mod sphere;
 
@@ -43,6 +44,7 @@ impl HitRecord {
 pub enum Hittable {
     Sphere(sphere::Sphere),
     HittableList(hittable_list::HittableList),
+    BvhNode(bvh::BvhNode),
 }
 
 impl From<sphere::Sphere> for Hittable {
@@ -54,6 +56,12 @@ impl From<sphere::Sphere> for Hittable {
 impl From<hittable_list::HittableList> for Hittable {
     fn from(value: hittable_list::HittableList) -> Self {
         Hittable::HittableList(value)
+    }
+}
+
+impl From<bvh::BvhNode> for Hittable {
+    fn from(value: bvh::BvhNode) -> Self {
+        Hittable::BvhNode(value)
     }
 }
 
@@ -102,6 +110,7 @@ impl Hittable {
                     })
                 }
             }
+
             HittableList(h) => {
                 let mut best_so_far = *ray_t.end();
                 let mut temp_rec = None;
@@ -113,6 +122,26 @@ impl Hittable {
                 }
                 temp_rec
             }
+
+            BvhNode(bvh) => {
+                if !bvh.bbox.hit(r, ray_t.clone()) {
+                    return None;
+                }
+
+                let mut temp_rec = bvh.left.hit(r, ray_t.clone());
+                let interval = if let Some(rec) = &temp_rec {
+                    *ray_t.start()..=rec.t
+                } else {
+                    ray_t
+                };
+                temp_rec = if let Some(rec) = bvh.right.hit(r, interval) {
+                    Some(rec)
+                } else {
+                    temp_rec
+                };
+
+                temp_rec
+            }
         }
     }
 
@@ -122,6 +151,8 @@ impl Hittable {
             Sphere(s) => s.bbox.clone(),
 
             HittableList(h) => h.bbox.clone(),
+
+            BvhNode(bvh) => bvh.bbox.clone(),
         }
     }
 }
