@@ -1,5 +1,6 @@
 use crate::color::Color;
 
+#[derive(Copy, Clone)]
 pub struct Metal {
     pub(super) albedo: Color,
     pub(super) fuzz: f64,

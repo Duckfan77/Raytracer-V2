@@ -9,11 +9,11 @@ pub struct Sphere {
 }
 
 impl Sphere {
-    pub fn new(center: &Point3, radius: f64, mat: Arc<Material>) -> Self {
+    pub fn new(center: &Point3, radius: f64, mat: impl Into<Arc<Material>>) -> Self {
         Self {
             center: *center,
             radius,
-            mat,
+            mat: mat.into(),
         }
     }
 }

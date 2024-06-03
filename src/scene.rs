@@ -8,7 +8,7 @@ use crate::{
     camera::Camera,
     color::Color,
     hittable::{hittable_list::HittableList, sphere::Sphere, Hittable},
-    material::{dielectric::*, lambertian::Lambertian, metal::Metal, Mat},
+    material::{dielectric::*, lambertian::Lambertian, metal::Metal},
     vec3::{Point3, Vec3},
 };
 
@@ -17,14 +17,10 @@ use crate::{
 pub fn two_lambertians() -> Hittable {
     let mut world = HittableList::new();
 
-    let mat: Mat = Lambertian::new(Color::half_grey()).into();
+    let mat = Lambertian::new(Color::half_grey());
 
-    world.add(Sphere::new(&Point3::new(0.0, 0.0, -1.0), 0.5, mat.clone()));
-    world.add(Sphere::new(
-        &Point3::new(0.0, -100.5, -1.0),
-        100.0,
-        mat.clone(),
-    ));
+    world.add(Sphere::new(&Point3::new(0.0, 0.0, -1.0), 0.5, mat));
+    world.add(Sphere::new(&Point3::new(0.0, -100.5, -1.0), 100.0, mat));
 
     world.into()
 }
@@ -32,10 +28,10 @@ pub fn two_lambertians() -> Hittable {
 pub fn smooth_metal() -> Hittable {
     let mut world = HittableList::new();
 
-    let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
-    let material_center: Mat = Lambertian::new(Color::new(0.1, 0.2, 0.5)).into();
-    let material_left: Mat = Metal::new(Color::new(0.8, 0.8, 0.8), 0.0).into();
-    let material_right: Mat = Metal::new(Color::new(0.8, 0.6, 0.2), 0.0).into();
+    let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
+    let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
+    let material_left = Metal::new(Color::new(0.8, 0.8, 0.8), 0.0);
+    let material_right = Metal::new(Color::new(0.8, 0.6, 0.2), 0.0);
 
     world.add(Sphere::new(
         &Point3::new(0.0, -100.5, -1.0),
@@ -64,10 +60,10 @@ pub fn smooth_metal() -> Hittable {
 pub fn fuzzed_metal() -> Hittable {
     let mut world = HittableList::new();
 
-    let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
-    let material_center: Mat = Lambertian::new(Color::new(0.1, 0.2, 0.5)).into();
-    let material_left: Mat = Metal::new(Color::new(0.8, 0.8, 0.8), 0.3).into();
-    let material_right: Mat = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0).into();
+    let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
+    let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
+    let material_left = Metal::new(Color::new(0.8, 0.8, 0.8), 0.3);
+    let material_right = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0);
 
     world.add(Sphere::new(
         &Point3::new(0.0, -100.5, -1.0),
@@ -96,10 +92,10 @@ pub fn fuzzed_metal() -> Hittable {
 pub fn solid_glass() -> Hittable {
     let mut world = HittableList::new();
 
-    let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
-    let material_center: Mat = Lambertian::new(Color::new(0.1, 0.2, 0.5)).into();
-    let material_left: Mat = Dielectric::new(RI_GLASS).into();
-    let material_right: Mat = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0).into();
+    let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
+    let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
+    let material_left = Dielectric::new(RI_GLASS);
+    let material_right = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0);
 
     world.add(Sphere::new(
         &Point3::new(0.0, -100.5, -1.0),
@@ -128,10 +124,10 @@ pub fn solid_glass() -> Hittable {
 pub fn air_bubble() -> Hittable {
     let mut world = HittableList::new();
 
-    let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
-    let material_center: Mat = Lambertian::new(Color::new(0.1, 0.2, 0.5)).into();
-    let material_left: Mat = Dielectric::new(RI_AIR / RI_WATER).into();
-    let material_right: Mat = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0).into();
+    let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
+    let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
+    let material_left = Dielectric::new(RI_AIR / RI_WATER);
+    let material_right = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0);
 
     world.add(Sphere::new(
         &Point3::new(0.0, -100.5, -1.0),
@@ -160,11 +156,11 @@ pub fn air_bubble() -> Hittable {
 pub fn hollow_glass() -> Hittable {
     let mut world = HittableList::new();
 
-    let material_ground: Mat = Lambertian::new(Color::new(0.8, 0.8, 0.0)).into();
-    let material_center: Mat = Lambertian::new(Color::new(0.1, 0.2, 0.5)).into();
-    let material_left: Mat = Dielectric::new(RI_GLASS).into();
-    let material_bubble: Mat = Dielectric::new(RI_AIR / RI_GLASS).into();
-    let material_right: Mat = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0).into();
+    let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
+    let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
+    let material_left = Dielectric::new(RI_GLASS);
+    let material_bubble = Dielectric::new(RI_AIR / RI_GLASS);
+    let material_right = Metal::new(Color::new(0.8, 0.6, 0.2), 1.0);
 
     world.add(Sphere::new(
         &Point3::new(0.0, -100.5, -1.0),
@@ -199,8 +195,8 @@ pub fn two_spheres() -> Hittable {
     let mut world = HittableList::new();
 
     let r = (PI / 4.0).cos();
-    let material_left: Mat = Lambertian::new(Color::new(0.0, 0.0, 1.0)).into();
-    let material_right: Mat = Lambertian::new(Color::new(1.0, 0.0, 0.0)).into();
+    let material_left = Lambertian::new(Color::new(0.0, 0.0, 1.0));
+    let material_right = Lambertian::new(Color::new(1.0, 0.0, 0.0));
 
     world.add(Sphere::new(&Point3::new(-r, 0.0, -1.0), r, material_left));
     world.add(Sphere::new(&Point3::new(r, 0.0, -1.0), r, material_right));
@@ -211,7 +207,7 @@ pub fn two_spheres() -> Hittable {
 pub fn random_spheres() -> Hittable {
     let mut world = HittableList::new();
 
-    let ground_material: Mat = Lambertian::new(Color::half_grey()).into();
+    let ground_material = Lambertian::new(Color::half_grey());
     world.add(Sphere::new(
         &Point3::new(0.0, -1000.0, 0.0),
         1000.0,
@@ -243,19 +239,19 @@ pub fn random_spheres() -> Hittable {
                         // Diffuse
                         let albedo = Color::random_range(diffuse_color_dist, &mut rng)
                             * Color::random_range(diffuse_color_dist, &mut rng);
-                        let mat: Mat = Lambertian::new(albedo).into();
+                        let mat = Lambertian::new(albedo);
                         world.add(Sphere::new(&center, BALL_RADIUS, mat));
                     }
                     ..=0.95 => {
                         // metal
                         let albedo = Color::random_range(metal_color_dist, &mut rng);
                         let fuzz = rng.sample(metal_fuzz_dist);
-                        let mat: Mat = Metal::new(albedo, fuzz).into();
+                        let mat = Metal::new(albedo, fuzz);
                         world.add(Sphere::new(&center, BALL_RADIUS, mat));
                     }
                     _ => {
                         // Glass
-                        let mat: Mat = Dielectric::new(RI_GLASS).into();
+                        let mat = Dielectric::new(RI_GLASS);
                         world.add(Sphere::new(&center, BALL_RADIUS, mat));
                     }
                 }
@@ -263,13 +259,13 @@ pub fn random_spheres() -> Hittable {
         }
     }
 
-    let mat1: Mat = Dielectric::new(RI_GLASS).into();
+    let mat1 = Dielectric::new(RI_GLASS);
     world.add(Sphere::new(&Point3::new(0.0, 1.0, 0.0), 1.0, mat1));
 
-    let mat2: Mat = Lambertian::new(Color::new(0.4, 0.2, 0.1)).into();
+    let mat2 = Lambertian::new(Color::new(0.4, 0.2, 0.1));
     world.add(Sphere::new(&Point3::new(-4.0, 1.0, 0.0), 1.0, mat2));
 
-    let mat3: Mat = Metal::new(Color::new(0.7, 0.6, 0.5), 0.0).into();
+    let mat3 = Metal::new(Color::new(0.7, 0.6, 0.5), 0.0);
     world.add(Sphere::new(&Point3::new(4.0, 1.0, 0.0), 1.0, mat3));
 
     world.into()

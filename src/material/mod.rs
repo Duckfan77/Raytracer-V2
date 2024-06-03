@@ -8,8 +8,6 @@ use dielectric::{reflectance, refract};
 
 use crate::{color::Color, hittable::HitRecord, ray::Ray, vec3::Vec3};
 
-pub type Mat = Arc<Material>;
-
 #[non_exhaustive]
 pub enum Material {
     Lambertian(lambertian::Lambertian),

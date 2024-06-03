@@ -30,6 +30,8 @@ mod refractive_indices {
     pub static RI_WATER: f64 = 1.333;
     pub static RI_DIAMOND: f64 = 2.417;
 }
+
+#[derive(Clone, Copy)]
 pub struct Dielectric {
     ///
     /// Refractive index in vacuum or air, or ratio of the material's refractive index over the
