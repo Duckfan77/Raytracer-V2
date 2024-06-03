@@ -12,8 +12,8 @@ mod scene;
 mod vec3;
 
 fn main() -> Result<()> {
-    let world = random_spheres();
-    let cam = random_spheres_camera();
+    let world = bouncing_random_spheres();
+    let cam = random_spheres_camera_fast();
 
     cam.render(&world)
 }
