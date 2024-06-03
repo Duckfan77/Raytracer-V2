@@ -21,14 +21,14 @@ impl Sphere {
     }
 
     pub fn new_moving(
-        center: Point3,
+        center0: Point3,
+        center1: Point3,
         radius: f64,
-        movement_vec: Vec3,
         mat: impl Into<Material>,
     ) -> Self {
         Self {
-            center0: center,
-            move_vec: Some(movement_vec),
+            center0,
+            move_vec: Some(center1 - center0),
             radius,
             mat: mat.into(),
         }
