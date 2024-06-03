@@ -1,5 +1,5 @@
 use crate::{
-    interval::{from_intervals, Interval, EMPTY},
+    interval::{from_intervals, AabbHelper, Interval, EMPTY},
     ray::Ray,
     vec3::Point3,
 };
@@ -99,5 +99,21 @@ impl Aabb {
         }
 
         true
+    }
+
+    pub fn longest_axis(&self) -> i32 {
+        if self.x.size() > self.y.size() {
+            if self.x.size() > self.z.size() {
+                0
+            } else {
+                2
+            }
+        } else {
+            if self.y.size() > self.z.size() {
+                1
+            } else {
+                2
+            }
+        }
     }
 }

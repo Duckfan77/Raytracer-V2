@@ -1,8 +1,5 @@
 use std::cmp::Ordering;
 
-use once_cell::sync::Lazy;
-use rand::distributions::{Distribution, Uniform};
-
 use super::{aabb::Aabb, hittable_list::HittableList, Hittable};
 
 #[derive(Clone)]
@@ -12,15 +9,18 @@ pub struct BvhNode {
     pub(super) bbox: Aabb,
 }
 
-static RANDOM_AXIS_DIST: Lazy<Uniform<usize>> = Lazy::new(|| Uniform::from(0..=2));
-
 impl BvhNode {
     pub fn from_list(list: HittableList) -> Self {
         BvhNode::new(list.objects)
     }
 
     pub fn new(mut objects: Vec<Hittable>) -> Self {
-        let axis = RANDOM_AXIS_DIST.sample(&mut rand::thread_rng());
+        let mut bbox = Aabb::empty();
+        for o in objects.iter() {
+            bbox = Aabb::from_boxes(&bbox, &o.bounding_box());
+        }
+
+        let axis = bbox.longest_axis();
 
         let comparator = match axis {
             0 => box_x_compare,

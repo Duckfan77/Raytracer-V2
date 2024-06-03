@@ -21,6 +21,7 @@ pub trait Clamp {
 pub trait AabbHelper {
     #[allow(dead_code)]
     fn expand(&self, delta: f64) -> Self;
+    fn size(&self) -> f64;
 }
 
 impl Surrounds for RangeInclusive<f64> {
@@ -45,6 +46,10 @@ impl AabbHelper for RangeInclusive<f64> {
     fn expand(&self, delta: f64) -> Self {
         let padding = delta / 2.0;
         (self.start() - padding)..=(self.end() + padding)
+    }
+
+    fn size(&self) -> f64 {
+        self.end() - self.start()
     }
 }
 
