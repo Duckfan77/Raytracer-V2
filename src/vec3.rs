@@ -26,14 +26,8 @@ impl Vec3 {
         Self(random(), random(), random())
     }
 
-    pub fn random_range(min: f64, max: f64) -> Self {
-        let dist = Uniform::from(min..max);
-        let mut rng = rand::thread_rng();
-        Self(
-            dist.sample(&mut rng),
-            dist.sample(&mut rng),
-            dist.sample(&mut rng),
-        )
+    pub fn random_range(dist: &Uniform<f64>, rng: &mut ThreadRng) -> Self {
+        Self(dist.sample(rng), dist.sample(rng), dist.sample(rng))
     }
 
     pub fn random_dist(dist: &Uniform<f64>, rng: &mut ThreadRng) -> Self {

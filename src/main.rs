@@ -12,8 +12,8 @@ mod scene;
 mod vec3;
 
 fn main() -> Result<()> {
-    let world = hollow_glass();
-    let cam = far_camera_zoomed_large_aperture();
+    let world = random_spheres();
+    let cam = random_spheres_camera();
 
     cam.render(&world)
 }

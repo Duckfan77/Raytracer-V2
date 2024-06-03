@@ -6,6 +6,11 @@ use std::{
 
 use crate::interval::{Clamp, Interval};
 use image::{Rgb, RgbImage};
+use rand::{
+    distributions::{Distribution, Uniform},
+    random,
+    rngs::ThreadRng,
+};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Color(f64, f64, f64);
@@ -17,6 +22,18 @@ impl Color {
 
     pub fn white() -> Self {
         Self(1.0, 1.0, 1.0)
+    }
+
+    pub fn half_grey() -> Self {
+        Self(0.5, 0.5, 0.5)
+    }
+
+    pub fn random() -> Self {
+        Self(random(), random(), random())
+    }
+
+    pub fn random_range(dist: Uniform<f64>, rng: &mut ThreadRng) -> Self {
+        Self(dist.sample(rng), dist.sample(rng), dist.sample(rng))
     }
 
     pub fn new(e0: f64, e1: f64, e2: f64) -> Self {
