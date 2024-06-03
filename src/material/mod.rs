@@ -71,14 +71,14 @@ impl Material {
                     scatter_dir = rec.normal
                 }
 
-                let scattered = Ray::new(rec.p, scatter_dir);
+                let scattered = Ray::with_time(rec.p, scatter_dir, r_in.time());
                 Some((l.albedo, scattered))
             }
 
             Metal(m) => {
                 let mut reflected = r_in.direction().reflect(rec.normal);
                 reflected = reflected.unit_vector() + (m.fuzz * Vec3::random_unit_vector());
-                let scattered = Ray::new(rec.p, reflected);
+                let scattered = Ray::with_time(rec.p, reflected, r_in.time());
 
                 if scattered.direction().dot(rec.normal) > 0.0 {
                     Some((m.albedo, scattered))
@@ -111,7 +111,7 @@ impl Material {
                         refract(unit_dir, rec.normal, ri)
                     };
 
-                Some((attenuation, Ray::new(rec.p, direction)))
+                Some((attenuation, Ray::with_time(rec.p, direction, r_in.time())))
             }
         }
     }
