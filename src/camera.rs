@@ -2,7 +2,10 @@ use std::{env, f64::INFINITY, io::Write};
 
 use anyhow::Result;
 use image::RgbImage;
-use rand::distributions::{Distribution, Uniform};
+use rand::{
+    distributions::{Distribution, Uniform},
+    random,
+};
 use rayon::prelude::*;
 
 use crate::{
@@ -218,8 +221,9 @@ impl CameraCore {
         };
 
         let ray_dir = pixel_sample - ray_origin;
+        let ray_time = random::<f64>();
 
-        Ray::new(ray_origin, ray_dir)
+        Ray::with_time(ray_origin, ray_dir, ray_time)
     }
 
     ///
