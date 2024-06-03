@@ -13,7 +13,7 @@ mod vec3;
 
 fn main() -> Result<()> {
     let world = hollow_glass();
-    let cam = far_camera();
+    let cam = far_camera_zoomed();
 
     cam.render(&world)
 }

@@ -235,3 +235,17 @@ pub fn far_camera() -> Camera {
         v_up: Vec3::new(0.0, 1.0, 0.0),
     }
 }
+
+pub fn far_camera_zoomed() -> Camera {
+    Camera {
+        aspect_ratio: 16.0 / 9.0,
+        image_width: 480,
+        samples_per_pixel: 100,
+        max_depth: 50,
+        vfov: 20.0,
+
+        look_from: Vec3::new(-2.0, 2.0, 1.0),
+        look_at: Vec3::new(0.0, 0.0, -1.0),
+        v_up: Vec3::new(0.0, 1.0, 0.0),
+    }
+}
