@@ -32,13 +32,18 @@ impl Sphere {
         radius: f64,
         mat: impl Into<Material>,
     ) -> Self {
-        unimplemented!();
-        /*Self {
+        let r_vec = Vec3::new(radius, radius, radius);
+        let box0 = Aabb::from_points(center0 - r_vec, center0 + r_vec);
+        let box1 = Aabb::from_points(center1 - r_vec, center1 + r_vec);
+        let bbox = Aabb::from_boxes(&box0, &box1);
+
+        Self {
             center0,
             move_vec: Some(center1 - center0),
             radius,
             mat: mat.into(),
-        }*/
+            bbox,
+        }
     }
 
     pub(super) fn sphere_center(&self, time: f64) -> Point3 {

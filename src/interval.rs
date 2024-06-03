@@ -53,3 +53,9 @@ impl AabbHelper for RangeInclusive<f64> {
         (self.start() - padding)..=(self.end() + padding)
     }
 }
+
+pub fn from_intervals(a: &Interval, b: &Interval) -> Interval {
+    let start = a.start().min(*b.start());
+    let end = a.end().max(*b.end());
+    start..=end
+}

@@ -1,4 +1,8 @@
-use crate::{interval::Interval, ray::Ray, vec3::Point3};
+use crate::{
+    interval::{from_intervals, Interval},
+    ray::Ray,
+    vec3::Point3,
+};
 
 #[derive(Clone)]
 pub struct Aabb {
@@ -30,6 +34,14 @@ impl Aabb {
         } else {
             b.z()..=a.z()
         };
+
+        Self { x, y, z }
+    }
+
+    pub fn from_boxes(box0: &Self, box1: &Self) -> Self {
+        let x = from_intervals(&box0.x, &box1.x);
+        let y = from_intervals(&box0.y, &box1.y);
+        let z = from_intervals(&box0.z, &box1.z);
 
         Self { x, y, z }
     }
