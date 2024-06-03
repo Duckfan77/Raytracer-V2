@@ -13,11 +13,14 @@ use crate::{
 };
 
 pub struct Camera {
-    pub aspect_ratio: f64,
-    pub image_width: u32,
-    pub samples_per_pixel: u32,
-    pub max_depth: u32,
-    pub vfov: f64,
+    pub aspect_ratio: f64,      // Ratio of image width over height
+    pub image_width: u32,       // Rendered image width in pixel count
+    pub samples_per_pixel: u32, // Number of samples for each pixel
+    pub max_depth: u32,         // Maximum number of ray bounces into scene
+    pub vfov: f64,              // Vertical view angle (field of view) in degrees
+    pub look_from: Point3,      // Point camera is looking from
+    pub look_at: Point3,        // Point camera is looking at
+    pub v_up: Vec3,             // Camera-relative "up" direction
 }
 
 impl Camera {
@@ -29,6 +32,9 @@ impl Camera {
             samples_per_pixel: 10,
             max_depth: 10,
             vfov: 90.0,
+            look_from: Point3::new(0.0, 0.0, 0.0),
+            look_at: Point3::new(0.0, 0.0, -1.0),
+            v_up: Vec3::new(0.0, 1.0, 0.0),
         }
     }
 
@@ -38,8 +44,6 @@ impl Camera {
 }
 
 struct CameraCore {
-    #[allow(dead_code)]
-    aspect_ratio: f64, // Ratio of image width over height
     image_width: u32,       // Rendered image width in pixel count
     samples_per_pixel: u32, // Number of samples for each pixel
     max_depth: u32,         // Maximum number of ray bounces into scene
@@ -50,6 +54,13 @@ struct CameraCore {
     pixel_00_loc: Point3,     // Location of pixel 0, 0
     pixel_delta_u: Point3,    // Offset to pixel to the right
     pixel_delta_v: Point3,    // Offset to pixel below
+
+    #[allow(dead_code)]
+    u: Vec3, // Camera Frame Basis Vector: Left relative to camera
+    #[allow(dead_code)]
+    v: Vec3, // Camera Frame Basis Vector: Up relative to camera
+    #[allow(dead_code)]
+    w: Vec3, // Camera Frame Basis Vector: Behind relative to camera (we look along the -w axis)
 }
 
 impl CameraCore {
@@ -94,29 +105,33 @@ impl CameraCore {
     }
 
     fn initialize(params: &Camera) -> Self {
-        let aspect_ratio = params.aspect_ratio;
         let image_width = params.image_width;
         let samples_per_pixel = params.samples_per_pixel;
         let max_depth = params.max_depth;
         let vfov = params.vfov;
 
-        let image_height = (image_width as f64 / aspect_ratio) as u32;
+        let image_height = (image_width as f64 / params.aspect_ratio) as u32;
         let image_height = if image_height < 1 { 1 } else { image_height };
 
         let pixel_samples_scale = 1.0 / samples_per_pixel as f64;
 
-        let center = Point3::new(0., 0., 0.);
+        let center = params.look_from;
 
         // Viewport Dimensions
-        let focal_length = 1.0; // Distance between the camera center and the viewport
+        let focal_length = (params.look_from - params.look_at).length();
         let theta = vfov.to_radians();
         let h = (theta / 2.0).tan();
         let viewport_height = 2.0 * h * focal_length;
         let viewport_width = viewport_height * (image_width as f64 / image_height as f64);
 
+        // Calculate the u, v, w unit basis vectors for the camera coordinate frame.
+        let w = (params.look_from - params.look_at).unit_vector();
+        let u = (params.v_up.cross(&w)).unit_vector();
+        let v = w.cross(&u);
+
         // Viewport Vectors
-        let viewport_u = Vec3::new(viewport_width, 0.0, 0.0); // Horizontal across the viewport, starting at the left
-        let viewport_v = Vec3::new(0.0, -viewport_height, 0.0); // Vertical across the viewport, starting at the top
+        let viewport_u = viewport_width * u; // Horizontal across the viewport, starting at the left
+        let viewport_v = viewport_height * -v; // Vertical across the viewport, starting at the top
 
         // Viewport pixel delta vectors
         let pixel_delta_u = viewport_u / image_width as f64;
@@ -124,11 +139,10 @@ impl CameraCore {
 
         // Find upper left pixel
         let viewport_upper_left = // upper left corner of the viewport
-        center - Vec3::new(0.0, 0.0, focal_length) - viewport_u / 2.0 - viewport_v / 2.0;
+        center - (focal_length * w) - viewport_u / 2.0 - viewport_v / 2.0;
         let pixel_00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v); // First pixel is half a pixel delta from the top left corner
 
         Self {
-            aspect_ratio,
             image_width,
             samples_per_pixel,
             max_depth,
@@ -139,6 +153,10 @@ impl CameraCore {
             pixel_00_loc,
             pixel_delta_u,
             pixel_delta_v,
+
+            u,
+            v,
+            w,
         }
     }
 

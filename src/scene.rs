@@ -7,7 +7,7 @@ use crate::{
     color::Color,
     hittable::{hittable_list::HittableList, sphere::Sphere, Hittable},
     material::{dielectric::*, lambertian::Lambertian, metal::Metal, Mat},
-    vec3::Point3,
+    vec3::{Point3, Vec3},
 };
 
 // Worlds
@@ -215,5 +215,9 @@ pub fn default_camera() -> Camera {
         samples_per_pixel: 100,
         max_depth: 50,
         vfov: 90.0,
+
+        look_from: Vec3::new(0.0, 0.0, 0.0),
+        look_at: Vec3::new(0.0, 0.0, -1.0),
+        v_up: Vec3::new(0.0, 1.0, 0.0),
     }
 }
