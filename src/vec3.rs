@@ -7,6 +7,7 @@ use once_cell::sync::Lazy;
 use rand::{
     distributions::{Distribution, Uniform},
     random,
+    rngs::ThreadRng,
 };
 
 pub type Point3 = Vec3;
@@ -35,18 +36,14 @@ impl Vec3 {
         )
     }
 
-    pub fn random_dist(dist: &Uniform<f64>) -> Self {
-        let mut rng = rand::thread_rng();
-        Self(
-            dist.sample(&mut rng),
-            dist.sample(&mut rng),
-            dist.sample(&mut rng),
-        )
+    pub fn random_dist(dist: &Uniform<f64>, rng: &mut ThreadRng) -> Self {
+        Self(dist.sample(rng), dist.sample(rng), dist.sample(rng))
     }
 
     pub fn random_in_unit_sphere() -> Self {
+        let mut rng = rand::thread_rng();
         loop {
-            let p = Vec3::random_dist(&UNIT_SPHERE_DIST);
+            let p = Vec3::random_dist(&UNIT_SPHERE_DIST, &mut rng);
             if p.length_squared() < 1.0 {
                 return p;
             }
@@ -64,6 +61,20 @@ impl Vec3 {
             on_sphere
         } else {
             -on_sphere
+        }
+    }
+
+    pub fn random_in_unit_disk() -> Self {
+        let mut rng = rand::thread_rng();
+        loop {
+            let p = Vec3::new(
+                UNIT_SPHERE_DIST.sample(&mut rng),
+                UNIT_SPHERE_DIST.sample(&mut rng),
+                0.0,
+            );
+            if p.length_squared() < 1.0 {
+                return p;
+            }
         }
     }
 
