@@ -219,6 +219,9 @@ pub fn default_camera() -> Camera {
         look_from: Vec3::new(0.0, 0.0, 0.0),
         look_at: Vec3::new(0.0, 0.0, -1.0),
         v_up: Vec3::new(0.0, 1.0, 0.0),
+
+        defocus_angle: 0.0,
+        focus_dist: 1.0,
     }
 }
 
@@ -233,6 +236,9 @@ pub fn far_camera() -> Camera {
         look_from: Vec3::new(-2.0, 2.0, 1.0),
         look_at: Vec3::new(0.0, 0.0, -1.0),
         v_up: Vec3::new(0.0, 1.0, 0.0),
+
+        defocus_angle: 0.0,
+        focus_dist: 2.0 * (3_f64).sqrt(),
     }
 }
 
@@ -247,5 +253,25 @@ pub fn far_camera_zoomed() -> Camera {
         look_from: Vec3::new(-2.0, 2.0, 1.0),
         look_at: Vec3::new(0.0, 0.0, -1.0),
         v_up: Vec3::new(0.0, 1.0, 0.0),
+
+        defocus_angle: 0.0,
+        focus_dist: 2.0 * (3_f64).sqrt(),
+    }
+}
+
+pub fn far_camera_zoomed_large_aperture() -> Camera {
+    Camera {
+        aspect_ratio: 16.0 / 9.0,
+        image_width: 480,
+        samples_per_pixel: 100,
+        max_depth: 50,
+        vfov: 20.0,
+
+        look_from: Vec3::new(-2.0, 2.0, 1.0),
+        look_at: Vec3::new(0.0, 0.0, -1.0),
+        v_up: Vec3::new(0.0, 1.0, 0.0),
+
+        defocus_angle: 10.0,
+        focus_dist: 3.4,
     }
 }

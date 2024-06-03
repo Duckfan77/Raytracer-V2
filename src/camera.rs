@@ -21,6 +21,8 @@ pub struct Camera {
     pub look_from: Point3,      // Point camera is looking from
     pub look_at: Point3,        // Point camera is looking at
     pub v_up: Vec3,             // Camera-relative "up" direction
+    pub defocus_angle: f64,     // Variation angle of rays through each pixel
+    pub focus_dist: f64,        // Distance from camera look_from point to plane of perfect focus
 }
 
 impl Camera {
@@ -35,6 +37,8 @@ impl Camera {
             look_from: Point3::new(0.0, 0.0, 0.0),
             look_at: Point3::new(0.0, 0.0, -1.0),
             v_up: Vec3::new(0.0, 1.0, 0.0),
+            defocus_angle: 0.0,
+            focus_dist: 10.0,
         }
     }
 
@@ -61,6 +65,10 @@ struct CameraCore {
     v: Vec3, // Camera Frame Basis Vector: Up relative to camera
     #[allow(dead_code)]
     w: Vec3, // Camera Frame Basis Vector: Behind relative to camera (we look along the -w axis)
+
+    defocus_angle: f64,   // Variation angle of rays through each pixel
+    defocus_disk_u: Vec3, // Defocus disk horizontal radius
+    defocus_disk_v: Vec3, // Defocus disk vertical radius
 }
 
 impl CameraCore {
@@ -109,6 +117,7 @@ impl CameraCore {
         let samples_per_pixel = params.samples_per_pixel;
         let max_depth = params.max_depth;
         let vfov = params.vfov;
+        let defocus_angle = params.defocus_angle;
 
         let image_height = (image_width as f64 / params.aspect_ratio) as u32;
         let image_height = if image_height < 1 { 1 } else { image_height };
@@ -118,10 +127,9 @@ impl CameraCore {
         let center = params.look_from;
 
         // Viewport Dimensions
-        let focal_length = (params.look_from - params.look_at).length();
         let theta = vfov.to_radians();
         let h = (theta / 2.0).tan();
-        let viewport_height = 2.0 * h * focal_length;
+        let viewport_height = 2.0 * h * params.focus_dist;
         let viewport_width = viewport_height * (image_width as f64 / image_height as f64);
 
         // Calculate the u, v, w unit basis vectors for the camera coordinate frame.
@@ -139,8 +147,13 @@ impl CameraCore {
 
         // Find upper left pixel
         let viewport_upper_left = // upper left corner of the viewport
-        center - (focal_length * w) - viewport_u / 2.0 - viewport_v / 2.0;
+        center - (params.focus_dist * w) - viewport_u / 2.0 - viewport_v / 2.0;
         let pixel_00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v); // First pixel is half a pixel delta from the top left corner
+
+        // Calculate the camera defocus disk basis vectors
+        let defocus_radius = params.focus_dist * (defocus_angle / 2.0).to_radians().tan();
+        let defocus_disk_u = u * defocus_radius;
+        let defocus_disk_v = v * defocus_radius;
 
         Self {
             image_width,
@@ -157,6 +170,10 @@ impl CameraCore {
             u,
             v,
             w,
+
+            defocus_angle,
+            defocus_disk_u,
+            defocus_disk_v,
         }
     }
 
@@ -185,7 +202,7 @@ impl CameraCore {
     }
 
     ///
-    /// Constructs a camera ray originating from the origin and directed at a randomly
+    /// Constructs a camera ray originating from the defocus disk and directed at a randomly
     /// sampled point around the pixel at (i, j)
     ///
     fn get_ray(&self, i: u32, j: u32) -> Ray {
@@ -194,9 +211,23 @@ impl CameraCore {
             + ((i as f64 + offset.x()) * self.pixel_delta_u)
             + ((j as f64 + offset.y()) * self.pixel_delta_v);
 
-        let ray_dir = pixel_sample - self.center;
+        let ray_origin = if self.defocus_angle <= 0.0 {
+            self.center
+        } else {
+            self.defocus_disk_sample()
+        };
 
-        Ray::new(&self.center, &ray_dir)
+        let ray_dir = pixel_sample - ray_origin;
+
+        Ray::new(&ray_origin, &ray_dir)
+    }
+
+    ///
+    /// Returns a random point in the camera defocus disk.
+    ///
+    fn defocus_disk_sample(&self) -> Point3 {
+        let p = Vec3::random_in_unit_disk();
+        self.center + (p.x() * self.defocus_disk_u + p.y() * self.defocus_disk_v)
     }
 }
 
