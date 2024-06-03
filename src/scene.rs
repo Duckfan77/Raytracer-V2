@@ -10,7 +10,7 @@ use rand::{
 use crate::{
     camera::Camera,
     color::Color,
-    hittable::{hittable_list::HittableList, sphere::Sphere, Hittable},
+    hittable::{bvh::BvhNode, hittable_list::HittableList, sphere::Sphere, Hittable},
     material::{dielectric::*, lambertian::Lambertian, metal::Metal},
     vec3::{Point3, Vec3},
 };
@@ -340,6 +340,8 @@ pub fn bouncing_random_spheres() -> Hittable {
 
     let mat3 = Metal::new(Color::new(0.7, 0.6, 0.5), 0.0);
     world.add(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, mat3));
+
+    let world = BvhNode::from_list(world);
 
     world.into()
 }

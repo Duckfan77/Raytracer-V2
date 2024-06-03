@@ -12,6 +12,7 @@ pub struct Aabb {
 }
 
 impl Aabb {
+    #[allow(dead_code)]
     pub fn new(x: Interval, y: Interval, z: Interval) -> Self {
         Self { x, y, z }
     }
@@ -54,7 +55,7 @@ impl Aabb {
         Self { x, y, z }
     }
 
-    fn index(&self, index: usize) -> &Interval {
+    pub fn index(&self, index: usize) -> &Interval {
         match index {
             0 => &self.x,
             1 => &self.y,
