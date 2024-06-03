@@ -41,6 +41,7 @@ impl HitRecord {
 }
 
 #[non_exhaustive]
+#[derive(Clone)]
 pub enum Hittable {
     Sphere(sphere::Sphere),
     HittableList(hittable_list::HittableList),

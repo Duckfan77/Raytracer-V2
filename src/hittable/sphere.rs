@@ -5,6 +5,7 @@ use crate::{
 
 use super::aabb::Aabb;
 
+#[derive(Clone)]
 pub struct Sphere {
     pub(super) center0: Point3,
     pub(super) move_vec: Option<Vec3>,

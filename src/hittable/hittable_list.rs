@@ -1,7 +1,6 @@
-use crate::interval::EMPTY;
-
 use super::{aabb::Aabb, Hittable};
 
+#[derive(Clone)]
 pub struct HittableList {
     pub(super) objects: Vec<Hittable>,
     pub(super) bbox: Aabb,
