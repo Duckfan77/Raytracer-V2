@@ -22,7 +22,7 @@ pub fn two_lambertians() -> Hittable {
 
     let mat = Lambertian::new(Color::half_grey());
 
-    world.add(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5, mat));
+    world.add(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5, mat.clone()));
     world.add(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0, mat));
 
     world.into()

@@ -72,7 +72,8 @@ impl Material {
                 }
 
                 let scattered = Ray::with_time(rec.p, scatter_dir, r_in.time());
-                Some((l.albedo, scattered))
+                let attenuation = l.tex.value(rec.u, rec.v, rec.p);
+                Some((attenuation, scattered))
             }
 
             Metal(m) => {
