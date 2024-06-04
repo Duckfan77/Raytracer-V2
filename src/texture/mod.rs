@@ -13,6 +13,7 @@ pub enum Texture {
     Checker(checker::Checker),
     Image(image::Image),
     Noise(noise::Noise),
+    TurbNoise(noise::TurbNoise),
 }
 
 impl From<solid_color::SolidColor> for Texture {
@@ -36,6 +37,12 @@ impl From<image::Image> for Texture {
 impl From<noise::Noise> for Texture {
     fn from(value: noise::Noise) -> Self {
         Texture::Noise(value)
+    }
+}
+
+impl From<noise::TurbNoise> for Texture {
+    fn from(value: noise::TurbNoise) -> Self {
+        Texture::TurbNoise(value)
     }
 }
 
@@ -83,6 +90,7 @@ impl Texture {
                 Color::new(gamma_r * gamma_r, gamma_g * gamma_g, gamma_b * gamma_b)
             }
             Noise(n) => Color::white() * 0.5 * (1.0 + n.noise.noise(n.scale * p)),
+            TurbNoise(n) => Color::white() * n.noise.turb(n.scale * p, n.depth),
         }
     }
 }

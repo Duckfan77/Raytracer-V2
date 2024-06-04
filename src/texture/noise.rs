@@ -14,3 +14,20 @@ impl Noise {
         }
     }
 }
+
+#[derive(Clone)]
+pub struct TurbNoise {
+    pub(super) noise: PerlinNoise,
+    pub(super) scale: f64,
+    pub(super) depth: u32,
+}
+
+impl TurbNoise {
+    pub fn new(scale: f64, depth: u32) -> Self {
+        Self {
+            noise: PerlinNoise::new(),
+            scale,
+            depth,
+        }
+    }
+}

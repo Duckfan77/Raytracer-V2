@@ -12,7 +12,11 @@ use crate::{
     color::Color,
     hittable::{bvh::BvhNode, hittable_list::HittableList, sphere::Sphere, Hittable},
     material::{dielectric::*, lambertian::Lambertian, metal::Metal},
-    texture::{checker::Checker, image::Image, noise::Noise},
+    texture::{
+        checker::Checker,
+        image::Image,
+        noise::{Noise, TurbNoise},
+    },
     vec3::{Point3, Vec3},
 };
 
@@ -451,6 +455,21 @@ pub fn perlin_spheres() -> Hittable {
     let mut world = HittableList::new();
 
     let per_text = Noise::new(4.0);
+    let per_mat = Lambertian::from_texture(per_text);
+    world.add(Sphere::new(
+        Point3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        per_mat.clone(),
+    ));
+    world.add(Sphere::new(Point3::new(0.0, 2.0, 0.0), 2.0, per_mat));
+
+    world.into()
+}
+
+pub fn turbulent_spheres() -> Hittable {
+    let mut world = HittableList::new();
+
+    let per_text = TurbNoise::new(1.0, 7);
     let per_mat = Lambertian::from_texture(per_text);
     world.add(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
