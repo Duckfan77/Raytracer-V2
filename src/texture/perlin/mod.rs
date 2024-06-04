@@ -33,9 +33,9 @@ impl PerlinNoise {
     }
 
     pub fn noise(&self, p: Point3) -> f64 {
-        let i = (4.0 * p.x()) as usize & 255;
-        let j = (4.0 * p.y()) as usize & 255;
-        let k = (4.0 * p.z()) as usize & 255;
+        let i = ((4.0 * p.x()) as i32 & 255) as usize;
+        let j = ((4.0 * p.y()) as i32 & 255) as usize;
+        let k = ((4.0 * p.z()) as i32 & 255) as usize;
 
         self.rand_float[self.perm_x[i] ^ self.perm_y[j] ^ self.perm_z[k]]
     }

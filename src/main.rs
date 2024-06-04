@@ -13,8 +13,8 @@ mod texture;
 mod vec3;
 
 fn main() -> Result<()> {
-    let world = earth();
-    let cam = earth_camera();
+    let world = perlin_spheres();
+    let cam = two_spheres_camera();
 
     cam.render(&world)
 }

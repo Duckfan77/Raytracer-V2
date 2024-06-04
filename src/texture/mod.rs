@@ -1,5 +1,6 @@
 pub mod checker;
 pub mod image;
+pub mod noise;
 mod perlin;
 pub mod solid_color;
 
@@ -11,6 +12,7 @@ pub enum Texture {
     SolidColor(solid_color::SolidColor),
     Checker(checker::Checker),
     Image(image::Image),
+    Noise(noise::Noise),
 }
 
 impl From<solid_color::SolidColor> for Texture {
@@ -28,6 +30,12 @@ impl From<checker::Checker> for Texture {
 impl From<image::Image> for Texture {
     fn from(value: image::Image) -> Self {
         Texture::Image(value)
+    }
+}
+
+impl From<noise::Noise> for Texture {
+    fn from(value: noise::Noise) -> Self {
+        Texture::Noise(value)
     }
 }
 
@@ -74,6 +82,7 @@ impl Texture {
 
                 Color::new(gamma_r * gamma_r, gamma_g * gamma_g, gamma_b * gamma_b)
             }
+            Noise(n) => Color::white() * n.noise.noise(p),
         }
     }
 }
