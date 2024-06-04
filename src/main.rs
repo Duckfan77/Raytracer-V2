@@ -13,7 +13,7 @@ mod texture;
 mod vec3;
 
 fn main() -> Result<()> {
-    let world = turbulent_spheres();
+    let world = marble_spheres();
     let cam = two_spheres_camera();
 
     cam.render(&world)

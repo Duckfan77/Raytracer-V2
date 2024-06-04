@@ -14,6 +14,7 @@ pub enum Texture {
     Image(image::Image),
     Noise(noise::Noise),
     TurbNoise(noise::TurbNoise),
+    Marble(noise::MarbleNoise),
 }
 
 impl From<solid_color::SolidColor> for Texture {
@@ -43,6 +44,12 @@ impl From<noise::Noise> for Texture {
 impl From<noise::TurbNoise> for Texture {
     fn from(value: noise::TurbNoise) -> Self {
         Texture::TurbNoise(value)
+    }
+}
+
+impl From<noise::MarbleNoise> for Texture {
+    fn from(value: noise::MarbleNoise) -> Self {
+        Texture::Marble(value)
     }
 }
 
@@ -91,6 +98,10 @@ impl Texture {
             }
             Noise(n) => Color::white() * 0.5 * (1.0 + n.noise.noise(n.scale * p)),
             TurbNoise(n) => Color::white() * n.noise.turb(n.scale * p, n.depth),
+            Marble(n) => {
+                Color::half_grey()
+                    * (1.0 + f64::sin(n.scale * p.z() + 10.0 * n.noise.turb(p, n.depth)))
+            }
         }
     }
 }
