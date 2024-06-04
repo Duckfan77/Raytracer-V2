@@ -1,13 +1,15 @@
 pub mod checker;
+pub mod image;
 pub mod solid_color;
 
-use crate::{color::Color, vec3::Point3};
+use crate::{color::Color, interval::Clamp, vec3::Point3};
 
 #[derive(Clone)]
 #[non_exhaustive]
 pub enum Texture {
     SolidColor(solid_color::SolidColor),
     Checker(checker::Checker),
+    Image(image::Image),
 }
 
 impl From<solid_color::SolidColor> for Texture {
@@ -19,6 +21,12 @@ impl From<solid_color::SolidColor> for Texture {
 impl From<checker::Checker> for Texture {
     fn from(value: checker::Checker) -> Self {
         Texture::Checker(value)
+    }
+}
+
+impl From<image::Image> for Texture {
+    fn from(value: image::Image) -> Self {
+        Texture::Image(value)
     }
 }
 
@@ -39,6 +47,31 @@ impl Texture {
                 } else {
                     c.odd.value(u, v, p)
                 }
+            }
+            Image(img) => {
+                let (width, height) = img.image.dimensions();
+
+                // if image is empty, return solid cyan for debugging
+                if width <= 0 && height <= 0 {
+                    return Color::new(0.0, 1.0, 1.0);
+                }
+
+                // Clamp input texture coordinates to [0,1] x [1,0]
+                let interval = 0.0..=1.0;
+                let u = interval.clamp(u);
+                let v = 1.0 - interval.clamp(v);
+
+                let i = (u * width as f64) as u32;
+                let j = (v * height as f64) as u32;
+                let pixel = img.image.get_pixel(i, j).0;
+
+                const COLOR_SCALE: f64 = 1.0 / 255.0;
+
+                let gamma_r = COLOR_SCALE * pixel[0] as f64;
+                let gamma_g = COLOR_SCALE * pixel[1] as f64;
+                let gamma_b = COLOR_SCALE * pixel[2] as f64;
+
+                Color::new(gamma_r * gamma_r, gamma_g * gamma_g, gamma_b * gamma_b)
             }
         }
     }
