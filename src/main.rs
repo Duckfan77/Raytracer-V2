@@ -13,8 +13,8 @@ mod texture;
 mod vec3;
 
 fn main() -> Result<()> {
-    let world = bouncing_random_spheres_checkerboard();
-    let cam = random_spheres_camera_fast();
+    let world = two_checkered_spheres();
+    let cam = two_spheres_camera();
 
     cam.render(&world)
 }
