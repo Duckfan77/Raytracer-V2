@@ -14,15 +14,19 @@ pub struct Aabb {
 impl Aabb {
     #[allow(dead_code)]
     pub fn new(x: Interval, y: Interval, z: Interval) -> Self {
-        Self { x, y, z }
+        let mut out = Self { x, y, z };
+        out.pad_to_minimums();
+        out
     }
 
     pub fn empty() -> Self {
-        Self {
+        let mut out = Self {
             x: EMPTY,
             y: EMPTY,
             z: EMPTY,
-        }
+        };
+        out.pad_to_minimums();
+        out
     }
 
     pub fn from_points(a: Point3, b: Point3) -> Self {
@@ -44,7 +48,9 @@ impl Aabb {
             b.z()..=a.z()
         };
 
-        Self { x, y, z }
+        let mut out = Self { x, y, z };
+        out.pad_to_minimums();
+        out
     }
 
     pub fn from_boxes(box0: &Self, box1: &Self) -> Self {
@@ -114,6 +120,20 @@ impl Aabb {
             } else {
                 2
             }
+        }
+    }
+
+    fn pad_to_minimums(&mut self) {
+        const DELTA: f64 = 0.0001;
+
+        if self.x.size() < DELTA {
+            self.x = self.x.expand(DELTA);
+        }
+        if self.y.size() < DELTA {
+            self.y = self.y.expand(DELTA);
+        }
+        if self.z.size() < DELTA {
+            self.z = self.z.expand(DELTA);
         }
     }
 }
