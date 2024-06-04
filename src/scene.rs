@@ -12,6 +12,7 @@ use crate::{
     color::Color,
     hittable::{bvh::BvhNode, hittable_list::HittableList, sphere::Sphere, Hittable},
     material::{dielectric::*, lambertian::Lambertian, metal::Metal},
+    texture::checker::Checker,
     vec3::{Point3, Vec3},
 };
 
@@ -278,6 +279,79 @@ pub fn bouncing_random_spheres() -> Hittable {
     let mut world = HittableList::new();
 
     let ground_material = Lambertian::new(Color::half_grey());
+    world.add(Sphere::new(
+        Point3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        ground_material,
+    ));
+
+    const BALL_RADIUS: f64 = 0.2;
+
+    // Useful values used throughout the loops
+    let mut rng = rand::thread_rng();
+    let ball_dist_center = Point3::new(4.0, BALL_RADIUS, 0.0);
+    let metal_color_dist = Uniform::from(0.5..1.0);
+    let metal_fuzz_dist = Uniform::from(0.0..0.5);
+    let diffuse_color_dist = Uniform::from(0.0..1.0);
+    let diffuse_move_dist = Uniform::from(0.0..0.5);
+
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat: f64 = rng.gen();
+            let center = Point3::new(
+                a as f64 + 0.9 * rng.gen::<f64>(),
+                BALL_RADIUS,
+                b as f64 + 0.9 * rng.gen::<f64>(),
+            );
+
+            // Clip off any outside the disk of size 0.9 centered at ball_dist_center
+            if (center - ball_dist_center).length() > 0.9 {
+                match choose_mat {
+                    ..=0.8 => {
+                        // Diffuse
+                        let albedo = Color::random_range(diffuse_color_dist, &mut rng)
+                            * Color::random_range(diffuse_color_dist, &mut rng);
+                        let mat = Lambertian::new(albedo);
+                        let center1 =
+                            center + Vec3::new(0.0, diffuse_move_dist.sample(&mut rng), 0.0);
+                        world.add(Sphere::new_moving(center, center1, BALL_RADIUS, mat));
+                    }
+                    ..=0.95 => {
+                        // metal
+                        let albedo = Color::random_range(metal_color_dist, &mut rng);
+                        let fuzz = rng.sample(metal_fuzz_dist);
+                        let mat = Metal::new(albedo, fuzz);
+                        world.add(Sphere::new(center, BALL_RADIUS, mat));
+                    }
+                    _ => {
+                        // Glass
+                        let mat = Dielectric::new(RI_GLASS);
+                        world.add(Sphere::new(center, BALL_RADIUS, mat));
+                    }
+                }
+            }
+        }
+    }
+
+    let mat1 = Dielectric::new(RI_GLASS);
+    world.add(Sphere::new(Point3::new(0.0, 1.0, 0.0), 1.0, mat1));
+
+    let mat2 = Lambertian::new(Color::new(0.4, 0.2, 0.1));
+    world.add(Sphere::new(Point3::new(-4.0, 1.0, 0.0), 1.0, mat2));
+
+    let mat3 = Metal::new(Color::new(0.7, 0.6, 0.5), 0.0);
+    world.add(Sphere::new(Point3::new(4.0, 1.0, 0.0), 1.0, mat3));
+
+    let world = BvhNode::from_list(world);
+
+    world.into()
+}
+
+pub fn bouncing_random_spheres_checkerboard() -> Hittable {
+    let mut world = HittableList::new();
+
+    let checker = Checker::from_colors(0.32, Color::new(0.2, 0.3, 0.1), Color::new(0.9, 0.9, 0.9));
+    let ground_material = Lambertian::from_texture(checker);
     world.add(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
