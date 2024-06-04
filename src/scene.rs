@@ -12,7 +12,7 @@ use crate::{
     color::Color,
     hittable::{bvh::BvhNode, hittable_list::HittableList, sphere::Sphere, Hittable},
     material::{dielectric::*, lambertian::Lambertian, metal::Metal},
-    texture::checker::Checker,
+    texture::{checker::Checker, image::Image},
     vec3::{Point3, Vec3},
 };
 
@@ -439,6 +439,14 @@ pub fn two_checkered_spheres() -> Hittable {
     world.into()
 }
 
+pub fn earth() -> Hittable {
+    let earth_texture = Image::new("src/assets/earthmap.jpg");
+    let earth_surface = Lambertian::from_texture(earth_texture);
+    let globe = Sphere::new(Point3::new(0.0, 0.0, 0.0), 2.0, earth_surface);
+
+    globe.into()
+}
+
 // Camera positions and layouts
 
 pub fn unmoved_camera() -> Camera {
@@ -552,6 +560,23 @@ pub fn two_spheres_camera() -> Camera {
 
         vfov: 20.0,
         look_from: Point3::new(13.0, 2.0, 3.0),
+        look_at: Point3::new(0.0, 0.0, 0.0),
+        v_up: Point3::new(0.0, 1.0, 0.0),
+
+        defocus_angle: 0.0,
+        focus_dist: 10.0,
+    }
+}
+
+pub fn earth_camera() -> Camera {
+    Camera {
+        aspect_ratio: 16.0 / 9.0,
+        image_width: 480,
+        samples_per_pixel: 100,
+        max_depth: 50,
+
+        vfov: 20.0,
+        look_from: Point3::new(0.0, 0.0, 12.0),
         look_at: Point3::new(0.0, 0.0, 0.0),
         v_up: Point3::new(0.0, 1.0, 0.0),
 

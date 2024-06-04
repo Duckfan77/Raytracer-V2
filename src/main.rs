@@ -13,8 +13,8 @@ mod texture;
 mod vec3;
 
 fn main() -> Result<()> {
-    let world = two_checkered_spheres();
-    let cam = two_spheres_camera();
+    let world = earth();
+    let cam = earth_camera();
 
     cam.render(&world)
 }
