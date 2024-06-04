@@ -82,7 +82,7 @@ impl Texture {
 
                 Color::new(gamma_r * gamma_r, gamma_g * gamma_g, gamma_b * gamma_b)
             }
-            Noise(n) => Color::white() * n.noise.noise(p),
+            Noise(n) => Color::white() * n.noise.noise(n.scale * p),
         }
     }
 }

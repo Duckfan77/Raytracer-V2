@@ -450,7 +450,7 @@ pub fn earth() -> Hittable {
 pub fn perlin_spheres() -> Hittable {
     let mut world = HittableList::new();
 
-    let per_text = Noise::new();
+    let per_text = Noise::new(4.0);
     let per_mat = Lambertian::from_texture(per_text);
     world.add(Sphere::new(
         Point3::new(0.0, -1000.0, 0.0),
