@@ -103,6 +103,7 @@ impl Hittable {
                     let mat = s.mat.clone();
                     let outward_normal = (p - center) / s.radius;
                     let (front_face, normal) = HitRecord::get_face_normal(r, outward_normal);
+                    let (u, v) = sphere::Sphere::get_sphere_uv(outward_normal);
 
                     Some(HitRecord {
                         t,
@@ -110,8 +111,8 @@ impl Hittable {
                         mat,
                         normal,
                         front_face,
-                        u: 0.0,
-                        v: 0.0,
+                        u,
+                        v,
                     })
                 }
             }
