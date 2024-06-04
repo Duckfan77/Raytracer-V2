@@ -23,7 +23,9 @@ pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub mat: Material,
-    pub t: f64,
+    pub t: f64, // location of hit along ray
+    pub u: f64, // location of hit on surface
+    pub v: f64, // location of hit on surface
     pub front_face: bool,
 }
 
@@ -108,6 +110,8 @@ impl Hittable {
                         mat,
                         normal,
                         front_face,
+                        u: 0.0,
+                        v: 0.0,
                     })
                 }
             }

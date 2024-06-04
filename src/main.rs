@@ -9,6 +9,7 @@ mod interval;
 mod material;
 mod ray;
 mod scene;
+mod texture;
 mod vec3;
 
 fn main() -> Result<()> {
