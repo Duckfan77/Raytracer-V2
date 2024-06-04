@@ -1,5 +1,6 @@
 pub mod checker;
 pub mod image;
+mod perlin;
 pub mod solid_color;
 
 use crate::{color::Color, interval::Clamp, vec3::Point3};
