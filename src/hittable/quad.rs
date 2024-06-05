@@ -4,7 +4,7 @@ use crate::{
     vec3::{Point3, Vec3},
 };
 
-use super::aabb::Aabb;
+use super::{aabb::Aabb, hittable_list::HittableList};
 
 #[derive(Clone)]
 pub struct Quad {
@@ -49,6 +49,71 @@ impl Quad {
         } else {
             Some((alpha, beta))
         }
+    }
+
+    pub fn new_box(a: Point3, b: Point3, mat: impl Into<Material>) -> HittableList {
+        let mut sides = HittableList::new();
+
+        let min = Point3::new(
+            f64::min(a.x(), b.x()),
+            f64::min(a.y(), b.y()),
+            f64::min(a.z(), b.z()),
+        );
+        let max = Point3::new(
+            f64::max(a.x(), b.x()),
+            f64::max(a.y(), b.y()),
+            f64::max(a.z(), b.z()),
+        );
+
+        let dx = Vec3::new(max.x() - min.x(), 0.0, 0.0);
+        let dy = Vec3::new(0.0, max.y() - min.y(), 0.0);
+        let dz = Vec3::new(0.0, 0.0, max.z() - min.z());
+
+        let mat = mat.into();
+
+        sides.add(Quad::new(
+            // Front
+            Point3::new(min.x(), min.y(), max.z()),
+            dx,
+            dy,
+            mat.clone(),
+        ));
+        sides.add(Quad::new(
+            // Right
+            Point3::new(max.x(), min.y(), max.z()),
+            -dz,
+            dy,
+            mat.clone(),
+        ));
+        sides.add(Quad::new(
+            // Back
+            Point3::new(max.x(), min.y(), min.z()),
+            -dx,
+            dy,
+            mat.clone(),
+        ));
+        sides.add(Quad::new(
+            // Left
+            Point3::new(min.x(), min.y(), min.z()),
+            dz,
+            dy,
+            mat.clone(),
+        ));
+        sides.add(Quad::new(
+            // Top
+            Point3::new(min.x(), max.y(), max.z()),
+            dx,
+            -dz,
+            mat.clone(),
+        ));
+        sides.add(Quad::new(
+            Point3::new(min.x(), min.y(), min.z()),
+            dx,
+            dz,
+            mat,
+        ));
+
+        sides
     }
 }
 
