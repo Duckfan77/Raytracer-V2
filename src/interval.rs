@@ -22,6 +22,7 @@ pub trait AabbHelper {
     #[allow(dead_code)]
     fn expand(&self, delta: f64) -> Self;
     fn size(&self) -> f64;
+    fn add(&self, displacement: f64) -> Self;
 }
 
 impl Surrounds for RangeInclusive<f64> {
@@ -50,6 +51,10 @@ impl AabbHelper for RangeInclusive<f64> {
 
     fn size(&self) -> f64 {
         self.end() - self.start()
+    }
+
+    fn add(&self, displacement: f64) -> Self {
+        (self.start() + displacement)..=(self.end() + displacement)
     }
 }
 

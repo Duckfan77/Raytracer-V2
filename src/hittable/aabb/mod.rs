@@ -1,7 +1,9 @@
+use std::ops::Add;
+
 use crate::{
     interval::{from_intervals, AabbHelper, Interval, EMPTY},
     ray::Ray,
-    vec3::Point3,
+    vec3::{Point3, Vec3},
 };
 
 #[derive(Clone)]
@@ -135,5 +137,25 @@ impl Aabb {
         if self.z.size() < DELTA {
             self.z = self.z.expand(DELTA);
         }
+    }
+}
+
+impl Add<Vec3> for Aabb {
+    type Output = Aabb;
+
+    fn add(self, rhs: Vec3) -> Self::Output {
+        Aabb::new(
+            self.x.add(rhs.x()),
+            self.y.add(rhs.y()),
+            self.z.add(rhs.z()),
+        )
+    }
+}
+
+impl Add<Aabb> for Vec3 {
+    type Output = Aabb;
+
+    fn add(self, rhs: Aabb) -> Self::Output {
+        rhs + self
     }
 }

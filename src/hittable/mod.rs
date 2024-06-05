@@ -1,6 +1,7 @@
 mod aabb;
 pub mod bvh;
 pub mod hittable_list;
+pub mod instance;
 pub mod quad;
 pub mod sphere;
 
@@ -50,6 +51,7 @@ pub enum Hittable {
     Quad(quad::Quad),
     HittableList(hittable_list::HittableList),
     BvhNode(bvh::BvhNode),
+    Translate(instance::Translate),
 }
 
 impl From<sphere::Sphere> for Hittable {
@@ -73,6 +75,12 @@ impl From<hittable_list::HittableList> for Hittable {
 impl From<bvh::BvhNode> for Hittable {
     fn from(value: bvh::BvhNode) -> Self {
         Hittable::BvhNode(value)
+    }
+}
+
+impl From<instance::Translate> for Hittable {
+    fn from(value: instance::Translate) -> Self {
+        Hittable::Translate(value)
     }
 }
 
@@ -192,6 +200,19 @@ impl Hittable {
 
                 temp_rec
             }
+
+            Translate(t) => {
+                // Move the ray backwards by the offset
+                let offset_r = Ray::with_time(*r.origin() - t.offset, *r.direction(), r.time());
+
+                // Determine whether an intersection exists along the offset ray
+                if let Some(mut rec) = t.object.hit(offset_r, ray_t) {
+                    rec.p += t.offset;
+                    Some(rec)
+                } else {
+                    None
+                }
+            }
         }
     }
 
@@ -205,6 +226,8 @@ impl Hittable {
             HittableList(h) => h.bbox.clone(),
 
             BvhNode(bvh) => bvh.bbox.clone(),
+
+            Translate(t) => t.bbox.clone(),
         }
     }
 }
