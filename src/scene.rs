@@ -10,7 +10,7 @@ use rand::{
 use crate::{
     camera::Camera,
     color::Color,
-    hittable::{bvh::BvhNode, hittable_list::HittableList, sphere::Sphere, Hittable},
+    hittable::{bvh::BvhNode, hittable_list::HittableList, quad::Quad, sphere::Sphere, Hittable},
     material::{dielectric::*, lambertian::Lambertian, metal::Metal},
     texture::{
         checker::Checker,
@@ -496,6 +496,51 @@ pub fn marble_spheres() -> Hittable {
     world.into()
 }
 
+pub fn quads() -> Hittable {
+    let mut world = HittableList::new();
+
+    // Materials
+    let left_red = Lambertian::new(Color::new(1.0, 0.2, 0.2));
+    let back_green = Lambertian::new(Color::new(0.2, 1.0, 0.2));
+    let right_blue = Lambertian::new(Color::new(0.2, 0.2, 1.0));
+    let top_orange = Lambertian::new(Color::new(1.0, 0.5, 0.0));
+    let bottom_teal = Lambertian::new(Color::new(0.2, 0.8, 0.8));
+
+    // Quads
+    world.add(Quad::new(
+        Point3::new(-3.0, -2.0, 5.0),
+        Vec3::new(0.0, 0.0, -4.0),
+        Vec3::new(0.0, 4.0, 0.0),
+        left_red,
+    ));
+    world.add(Quad::new(
+        Point3::new(-2.0, -2.0, 0.0),
+        Vec3::new(4.0, 0.0, 0.0),
+        Vec3::new(0.0, 4.0, 0.0),
+        back_green,
+    ));
+    world.add(Quad::new(
+        Point3::new(3.0, -2.0, 1.0),
+        Vec3::new(0.0, 0.0, 4.0),
+        Vec3::new(0.0, 4.0, 0.0),
+        right_blue,
+    ));
+    world.add(Quad::new(
+        Point3::new(-2.0, 3.0, 1.0),
+        Vec3::new(4.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 4.0),
+        top_orange,
+    ));
+    world.add(Quad::new(
+        Point3::new(-2.0, -3.0, 5.0),
+        Vec3::new(4.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, -4.0),
+        bottom_teal,
+    ));
+
+    world.into()
+}
+
 // Camera positions and layouts
 
 pub fn unmoved_camera() -> Camera {
@@ -628,6 +673,23 @@ pub fn earth_camera() -> Camera {
         look_from: Point3::new(0.0, 0.0, 12.0),
         look_at: Point3::new(0.0, 0.0, 0.0),
         v_up: Point3::new(0.0, 1.0, 0.0),
+
+        defocus_angle: 0.0,
+        focus_dist: 10.0,
+    }
+}
+
+pub fn quads_camera() -> Camera {
+    Camera {
+        aspect_ratio: 1.0,
+        image_width: 480,
+        samples_per_pixel: 100,
+        max_depth: 50,
+
+        vfov: 80.0,
+        look_from: Point3::new(0.0, 0.0, 9.0),
+        look_at: Point3::new(0.0, 0.0, 0.0),
+        v_up: Vec3::new(0.0, 1.0, 0.0),
 
         defocus_angle: 0.0,
         focus_dist: 10.0,
