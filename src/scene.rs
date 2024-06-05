@@ -12,6 +12,7 @@ use crate::{
     color::Color,
     hittable::{
         bvh::BvhNode,
+        constant_medium::ConstantMedium,
         hittable_list::HittableList,
         instance::{Translate, YRotate},
         quad::Quad,
@@ -643,6 +644,72 @@ pub fn cornell_box() -> Hittable {
     let box2 = YRotate::new(box2, -18.0);
     let box2 = Translate::new(box2, Vec3::new(130.0, 0.0, 65.0));
     world.add(box2);
+
+    world.into()
+}
+
+pub fn cornell_smoke() -> Hittable {
+    let mut world = HittableList::new();
+
+    let red = Lambertian::new(Color::new(0.65, 0.05, 0.05));
+    let white = Lambertian::new(Color::new(0.73, 0.73, 0.73));
+    let green = Lambertian::new(Color::new(0.12, 0.45, 0.15));
+    let light = DiffuseLight::new(Color::new(15.0, 15.0, 15.0));
+
+    world.add(Quad::new(
+        Point3::new(555.0, 0.0, 0.0),
+        Vec3::new(0.0, 555.0, 0.0),
+        Vec3::new(0.0, 0.0, 555.0),
+        green,
+    ));
+    world.add(Quad::new(
+        Point3::new(0.0, 0.0, 0.0),
+        Vec3::new(0.0, 555.0, 0.0),
+        Vec3::new(0.0, 0.0, 555.0),
+        red,
+    ));
+    world.add(Quad::new(
+        Point3::new(113.0, 554.0, 127.0),
+        Vec3::new(330.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 305.0),
+        light,
+    ));
+    world.add(Quad::new(
+        Point3::new(0.0, 0.0, 0.0),
+        Vec3::new(555.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 555.0),
+        white.clone(),
+    ));
+    world.add(Quad::new(
+        Point3::new(555.0, 555.0, 555.0),
+        Vec3::new(-555.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, -555.0),
+        white.clone(),
+    ));
+    world.add(Quad::new(
+        Point3::new(0.0, 0.0, 555.0),
+        Vec3::new(555.0, 0.0, 0.0),
+        Vec3::new(0.0, 555.0, 0.0),
+        white.clone(),
+    ));
+
+    let box1 = Quad::new_box(
+        Point3::new(0.0, 0.0, 0.0),
+        Point3::new(165.0, 330.0, 165.0),
+        white.clone(),
+    );
+    let box1 = YRotate::new(box1, 15.0);
+    let box1 = Translate::new(box1, Vec3::new(265.0, 0.0, 295.0));
+    world.add(ConstantMedium::new(box1, 0.01, Color::black()));
+
+    let box2 = Quad::new_box(
+        Point3::new(0.0, 0.0, 0.0),
+        Point3::new(165.0, 165.0, 165.0),
+        white,
+    );
+    let box2 = YRotate::new(box2, -18.0);
+    let box2 = Translate::new(box2, Vec3::new(130.0, 0.0, 65.0));
+    world.add(ConstantMedium::new(box2, 0.01, Color::white()));
 
     world.into()
 }

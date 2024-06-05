@@ -1,14 +1,17 @@
 mod aabb;
 pub mod bvh;
+pub mod constant_medium;
 pub mod hittable_list;
 pub mod instance;
 pub mod quad;
 pub mod sphere;
 
+use std::f64::INFINITY;
+
 use aabb::Aabb;
 
 use crate::{
-    interval::Interval,
+    interval::{self, Interval},
     material::Material,
     ray::Ray,
     vec3::{Point3, Vec3},
@@ -49,6 +52,7 @@ impl HitRecord {
 pub enum Hittable {
     Sphere(sphere::Sphere),
     Quad(quad::Quad),
+    ConstantMedium(constant_medium::ConstantMedium),
     HittableList(hittable_list::HittableList),
     BvhNode(bvh::BvhNode),
     Translate(instance::Translate),
@@ -64,6 +68,12 @@ impl From<sphere::Sphere> for Hittable {
 impl From<quad::Quad> for Hittable {
     fn from(value: quad::Quad) -> Self {
         Hittable::Quad(value)
+    }
+}
+
+impl From<constant_medium::ConstantMedium> for Hittable {
+    fn from(value: constant_medium::ConstantMedium) -> Self {
+        Hittable::ConstantMedium(value)
     }
 }
 
@@ -176,6 +186,80 @@ impl Hittable {
                 })
             }
 
+            ConstantMedium(m) => {
+                // This hit function assumes the boundary of m is convex. It WILL NOT WORK if it isn't.
+
+                // Print occasional samples when debugging. To enable, set ENABLE_DEBUG true.
+                const ENABLE_DEBUG: bool = false;
+                let debugging = ENABLE_DEBUG && rand::random::<f64>() < 0.00001;
+
+                // Get two hits on the boundary, to know min and max locations of hits
+                let rec1 = m.boundary.hit(r, interval::UNIVERSE);
+                if rec1.is_none() {
+                    return None;
+                }
+                let mut rec1 =
+                    rec1.expect("This is safe, because we just handled the None case above");
+
+                let rec2 = m.boundary.hit(r, (rec1.t + 0.0001)..=INFINITY);
+                if rec2.is_none() {
+                    return None;
+                }
+                let mut rec2 =
+                    rec2.expect("This is safe, because we just handled the None case above");
+
+                if debugging {
+                    println!("\nt_min={}, t_max={}", rec1.t, rec2.t);
+                }
+
+                // Limit boundary hit positions to locations of interest defined by ray_t
+                if rec1.t < *ray_t.start() {
+                    rec1.t = *ray_t.start()
+                }
+                if rec2.t > *ray_t.end() {
+                    rec2.t = *ray_t.start()
+                }
+
+                // If the second hit is before the first hit, then we didn't hit the boundary
+                if rec1.t >= rec2.t {
+                    return None;
+                }
+
+                // Clip the start time to 0 at minimum, no negative hit locations
+                if rec1.t < 0.0 {
+                    rec1.t = 0.0
+                }
+
+                let ray_length = r.direction().length();
+                let distance_inside_boundary = (rec2.t - rec1.t) * ray_length;
+                let hit_distance = m.neg_inv_density * rand::random::<f64>().ln();
+
+                if hit_distance > distance_inside_boundary {
+                    return None;
+                }
+
+                let t = rec1.t + hit_distance / ray_length;
+                let p = r.at(t);
+
+                if debugging {
+                    println!("hit_distance = {hit_distance}\nrec.t = {t}\nrec.p = {p}");
+                }
+
+                let normal = Vec3::new(1.0, 0.0, 0.0); // Arbitrary, doesn't make sense for a constant medium
+                let front_face = true; // Arbitrary, doesn't make sense for a constant medium
+                let mat = m.phase_function.clone();
+
+                Some(HitRecord {
+                    t,
+                    p,
+                    normal,
+                    front_face,
+                    mat,
+                    u: 0.0,
+                    v: 0.0,
+                })
+            }
+
             HittableList(h) => {
                 let mut best_so_far = *ray_t.end();
                 let mut temp_rec = None;
@@ -261,6 +345,8 @@ impl Hittable {
             Sphere(s) => s.bbox.clone(),
 
             Quad(q) => q.bbox.clone(),
+
+            ConstantMedium(m) => m.boundary.bounding_box(),
 
             HittableList(h) => h.bbox.clone(),
 
