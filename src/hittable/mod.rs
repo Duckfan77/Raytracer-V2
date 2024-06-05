@@ -135,15 +135,20 @@ impl Hittable {
                 }
 
                 // Return None if hit point parameter t is outside the ray interval
-                let t = (q.D - q.normal.dot(*r.origin())) / denom;
+                let t = (q.d - q.normal.dot(*r.origin())) / denom;
                 if !ray_t.contains(&t) {
                     return None;
                 }
 
                 let p = r.at(t);
+                let uv = q.quad_uv(p);
+                if uv.is_none() {
+                    return None;
+                }
+                let (u, v) = uv.expect("This is always safe, we just handled the None case above");
+
                 let mat = q.mat.clone();
                 let (front_face, normal) = HitRecord::get_face_normal(r, q.normal);
-                let (u, v) = (0.0, 0.0);
 
                 Some(HitRecord {
                     p,
