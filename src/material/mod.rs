@@ -1,5 +1,6 @@
 pub mod dielectric;
 pub mod emissive;
+pub mod isotropic;
 pub mod lambertian;
 pub mod metal;
 
@@ -21,6 +22,7 @@ pub enum Material {
     Metal(metal::Metal),
     Dielectric(dielectric::Dielectric),
     DiffuseLight(emissive::DiffuseLight),
+    Isotropic(isotropic::Isotropic),
 }
 
 impl From<lambertian::Lambertian> for Arc<Material> {
@@ -68,6 +70,12 @@ impl From<emissive::DiffuseLight> for Arc<Material> {
 impl From<emissive::DiffuseLight> for Material {
     fn from(value: emissive::DiffuseLight) -> Self {
         Material::DiffuseLight(value)
+    }
+}
+
+impl From<isotropic::Isotropic> for Material {
+    fn from(value: isotropic::Isotropic) -> Self {
+        Material::Isotropic(value)
     }
 }
 
@@ -135,6 +143,12 @@ impl Material {
             }
 
             DiffuseLight(_) => None,
+
+            Isotropic(i) => {
+                let scattered = Ray::with_time(rec.p, Vec3::random_unit_vector(), r_in.time());
+                let attenuation = i.tex.value(rec.u, rec.v, rec.p);
+                Some((attenuation, scattered))
+            }
         }
     }
 
