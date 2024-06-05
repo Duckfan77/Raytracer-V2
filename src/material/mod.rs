@@ -1,4 +1,5 @@
 pub mod dielectric;
+pub mod emissive;
 pub mod lambertian;
 pub mod metal;
 
@@ -6,7 +7,12 @@ use std::sync::Arc;
 
 use dielectric::{reflectance, refract};
 
-use crate::{color::Color, hittable::HitRecord, ray::Ray, vec3::Vec3};
+use crate::{
+    color::Color,
+    hittable::HitRecord,
+    ray::Ray,
+    vec3::{Point3, Vec3},
+};
 
 #[non_exhaustive]
 #[derive(Clone)]
@@ -14,6 +20,7 @@ pub enum Material {
     Lambertian(lambertian::Lambertian),
     Metal(metal::Metal),
     Dielectric(dielectric::Dielectric),
+    DiffuseLight(emissive::DiffuseLight),
 }
 
 impl From<lambertian::Lambertian> for Arc<Material> {
@@ -49,6 +56,18 @@ impl From<dielectric::Dielectric> for Arc<Material> {
 impl From<dielectric::Dielectric> for Material {
     fn from(value: dielectric::Dielectric) -> Self {
         Material::Dielectric(value)
+    }
+}
+
+impl From<emissive::DiffuseLight> for Arc<Material> {
+    fn from(value: emissive::DiffuseLight) -> Self {
+        Arc::new(Material::DiffuseLight(value))
+    }
+}
+
+impl From<emissive::DiffuseLight> for Material {
+    fn from(value: emissive::DiffuseLight) -> Self {
+        Material::DiffuseLight(value)
     }
 }
 
@@ -114,6 +133,18 @@ impl Material {
 
                 Some((attenuation, Ray::with_time(rec.p, direction, r_in.time())))
             }
+
+            DiffuseLight(_) => None,
+        }
+    }
+
+    pub fn emitted(&self, u: f64, v: f64, p: Point3) -> Color {
+        use Material::*;
+        match self {
+            DiffuseLight(l) => l.tex.value(u, v, p),
+
+            // By default, don't emit anything
+            _ => Color::black(),
         }
     }
 }
