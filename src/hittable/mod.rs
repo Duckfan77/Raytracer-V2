@@ -125,7 +125,36 @@ impl Hittable {
                 }
             }
 
-            Quad(_) => unimplemented!(),
+            Quad(q) => {
+                let denom = q.normal.dot(*r.direction());
+
+                // No hit if the ray is parallel to the plane.
+                const NEAR_ZERO_THRESHOLD: f64 = 1e-8;
+                if denom.abs() < NEAR_ZERO_THRESHOLD {
+                    return None;
+                }
+
+                // Return None if hit point parameter t is outside the ray interval
+                let t = (q.D - q.normal.dot(*r.origin())) / denom;
+                if !ray_t.contains(&t) {
+                    return None;
+                }
+
+                let p = r.at(t);
+                let mat = q.mat.clone();
+                let (front_face, normal) = HitRecord::get_face_normal(r, q.normal);
+                let (u, v) = (0.0, 0.0);
+
+                Some(HitRecord {
+                    p,
+                    normal,
+                    mat,
+                    t,
+                    u,
+                    v,
+                    front_face,
+                })
+            }
 
             HittableList(h) => {
                 let mut best_so_far = *ray_t.end();
