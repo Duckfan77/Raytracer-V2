@@ -1,6 +1,7 @@
 mod aabb;
 pub mod bvh;
 pub mod hittable_list;
+pub mod quad;
 pub mod sphere;
 
 use aabb::Aabb;
@@ -46,6 +47,7 @@ impl HitRecord {
 #[derive(Clone)]
 pub enum Hittable {
     Sphere(sphere::Sphere),
+    Quad(quad::Quad),
     HittableList(hittable_list::HittableList),
     BvhNode(bvh::BvhNode),
 }
@@ -53,6 +55,12 @@ pub enum Hittable {
 impl From<sphere::Sphere> for Hittable {
     fn from(value: sphere::Sphere) -> Self {
         Hittable::Sphere(value)
+    }
+}
+
+impl From<quad::Quad> for Hittable {
+    fn from(value: quad::Quad) -> Self {
+        Hittable::Quad(value)
     }
 }
 
@@ -117,6 +125,8 @@ impl Hittable {
                 }
             }
 
+            Quad(_) => unimplemented!(),
+
             HittableList(h) => {
                 let mut best_so_far = *ray_t.end();
                 let mut temp_rec = None;
@@ -155,6 +165,8 @@ impl Hittable {
         use Hittable::*;
         match self {
             Sphere(s) => s.bbox.clone(),
+
+            Quad(q) => q.bbox.clone(),
 
             HittableList(h) => h.bbox.clone(),
 
