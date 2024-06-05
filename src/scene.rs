@@ -557,6 +557,8 @@ pub fn unmoved_camera() -> Camera {
 
         defocus_angle: 0.0,
         focus_dist: 1.0,
+
+        background: None,
     }
 }
 
@@ -574,6 +576,8 @@ pub fn far_camera() -> Camera {
 
         defocus_angle: 0.0,
         focus_dist: 2.0 * (3_f64).sqrt(),
+
+        background: None,
     }
 }
 
@@ -591,6 +595,8 @@ pub fn far_camera_zoomed() -> Camera {
 
         defocus_angle: 0.0,
         focus_dist: 2.0 * (3_f64).sqrt(),
+
+        background: None,
     }
 }
 
@@ -608,6 +614,8 @@ pub fn far_camera_zoomed_large_aperture() -> Camera {
 
         defocus_angle: 10.0,
         focus_dist: 3.4,
+
+        background: None,
     }
 }
 
@@ -625,6 +633,8 @@ pub fn random_spheres_camera() -> Camera {
 
         defocus_angle: 0.6,
         focus_dist: 10.0,
+
+        background: None,
     }
 }
 
@@ -642,6 +652,8 @@ pub fn random_spheres_camera_fast() -> Camera {
 
         defocus_angle: 0.6,
         focus_dist: 10.0,
+
+        background: None,
     }
 }
 
@@ -659,6 +671,8 @@ pub fn two_spheres_camera() -> Camera {
 
         defocus_angle: 0.0,
         focus_dist: 10.0,
+
+        background: None,
     }
 }
 
@@ -676,6 +690,8 @@ pub fn earth_camera() -> Camera {
 
         defocus_angle: 0.0,
         focus_dist: 10.0,
+
+        background: None,
     }
 }
 
@@ -693,5 +709,7 @@ pub fn quads_camera() -> Camera {
 
         defocus_angle: 0.0,
         focus_dist: 10.0,
+
+        background: None,
     }
 }

@@ -16,16 +16,17 @@ use crate::{
 };
 
 pub struct Camera {
-    pub aspect_ratio: f64,      // Ratio of image width over height
-    pub image_width: u32,       // Rendered image width in pixel count
-    pub samples_per_pixel: u32, // Number of samples for each pixel
-    pub max_depth: u32,         // Maximum number of ray bounces into scene
-    pub vfov: f64,              // Vertical view angle (field of view) in degrees
-    pub look_from: Point3,      // Point camera is looking from
-    pub look_at: Point3,        // Point camera is looking at
-    pub v_up: Vec3,             // Camera-relative "up" direction
-    pub defocus_angle: f64,     // Variation angle of rays through each pixel
-    pub focus_dist: f64,        // Distance from camera look_from point to plane of perfect focus
+    pub aspect_ratio: f64,         // Ratio of image width over height
+    pub image_width: u32,          // Rendered image width in pixel count
+    pub samples_per_pixel: u32,    // Number of samples for each pixel
+    pub max_depth: u32,            // Maximum number of ray bounces into scene
+    pub vfov: f64,                 // Vertical view angle (field of view) in degrees
+    pub look_from: Point3,         // Point camera is looking from
+    pub look_at: Point3,           // Point camera is looking at
+    pub v_up: Vec3,                // Camera-relative "up" direction
+    pub defocus_angle: f64,        // Variation angle of rays through each pixel
+    pub focus_dist: f64,           // Distance from camera look_from point to plane of perfect focus
+    pub background: Option<Color>, // Color to ues as the background of the image, when nothing is hit. If None, use gradient
 }
 
 impl Camera {
@@ -42,6 +43,7 @@ impl Camera {
             v_up: Vec3::new(0.0, 1.0, 0.0),
             defocus_angle: 0.0,
             focus_dist: 10.0,
+            background: None,
         }
     }
 
@@ -72,6 +74,8 @@ struct CameraCore {
     defocus_angle: f64,   // Variation angle of rays through each pixel
     defocus_disk_u: Vec3, // Defocus disk horizontal radius
     defocus_disk_v: Vec3, // Defocus disk vertical radius
+
+    background: Option<Color>, // Color to ues as the background of the image, when nothing is hit. If None, use gradient
 }
 
 impl CameraCore {
@@ -121,6 +125,7 @@ impl CameraCore {
         let max_depth = params.max_depth;
         let vfov = params.vfov;
         let defocus_angle = params.defocus_angle;
+        let background = params.background;
 
         let image_height = (image_width as f64 / params.aspect_ratio) as u32;
         let image_height = if image_height < 1 { 1 } else { image_height };
@@ -177,6 +182,8 @@ impl CameraCore {
             defocus_angle,
             defocus_disk_u,
             defocus_disk_v,
+
+            background,
         }
     }
 
@@ -190,18 +197,29 @@ impl CameraCore {
         }
 
         if let Some(rec) = world.hit(r, SURFACE_HOLDOFF_DIST..=INFINITY) {
+            // We hit something, calculate based on emission and scatter colors
+            let emission_color = rec.mat.emitted(rec.u, rec.v, rec.p);
             if let Some((attenuation, scattered)) = rec.mat.scatter(r, &rec) {
-                return attenuation * self.ray_color(scattered, depth - 1, world);
+                // Scatters and emits, combine them.
+                let scatter_color = attenuation * self.ray_color(scattered, depth - 1, world);
+                scatter_color + emission_color
+            } else {
+                // Doesn't scatter light, just emits
+                emission_color
             }
-            return Color::black();
+        } else {
+            // If we didn't hit anything, return the background
+            if let Some(background) = self.background {
+                background
+            } else {
+                // Basic gradient. This is expected to have a small horizontal gradient to go with the vertical gradient,
+                // due to normalizing the direction before taking the y coordinate.
+
+                let unit_direction = r.direction().unit_vector();
+                let a = 0.5 * (unit_direction.y() + 1.0); // convert y coordinate to between 0 and 1
+                (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
+            }
         }
-
-        // Basic gradient. This is expected to have a small horizontal gradient to go with the vertical gradient,
-        // due to normalizing the direction before taking the y coordinate.
-
-        let unit_direction = r.direction().unit_vector();
-        let a = 0.5 * (unit_direction.y() + 1.0); // convert y coordinate to between 0 and 1
-        (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
     }
 
     ///
