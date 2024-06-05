@@ -13,8 +13,8 @@ mod texture;
 mod vec3;
 
 fn main() -> Result<()> {
-    let world = cornell_smoke();
-    let cam = cornell_box_cam();
+    let world = book2_final();
+    let cam = book2_final_camera(400, 250, 4);
 
     cam.render(&world)
 }
