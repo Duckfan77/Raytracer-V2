@@ -10,7 +10,14 @@ use rand::{
 use crate::{
     camera::Camera,
     color::Color,
-    hittable::{bvh::BvhNode, hittable_list::HittableList, quad::Quad, sphere::Sphere, Hittable},
+    hittable::{
+        bvh::BvhNode,
+        hittable_list::HittableList,
+        instance::{Translate, YRotate},
+        quad::Quad,
+        sphere::Sphere,
+        Hittable,
+    },
     material::{dielectric::*, emissive::DiffuseLight, lambertian::Lambertian, metal::Metal},
     texture::{
         checker::Checker,
@@ -619,16 +626,23 @@ pub fn cornell_box() -> Hittable {
         white.clone(),
     ));
 
-    world.add(Quad::new_box(
-        Point3::new(130.0, 0.0, 65.0),
-        Point3::new(295.0, 165.0, 230.0),
+    let box1 = Quad::new_box(
+        Point3::new(0.0, 0.0, 0.0),
+        Point3::new(165.0, 330.0, 165.0),
         white.clone(),
-    ));
-    world.add(Quad::new_box(
-        Point3::new(265.0, 0.0, 295.0),
-        Point3::new(430.0, 330.0, 460.0),
+    );
+    let box1 = YRotate::new(box1, 15.0);
+    let box1 = Translate::new(box1, Vec3::new(265.0, 0.0, 295.0));
+    world.add(box1);
+
+    let box2 = Quad::new_box(
+        Point3::new(0.0, 0.0, 0.0),
+        Point3::new(165.0, 165.0, 165.0),
         white,
-    ));
+    );
+    let box2 = YRotate::new(box2, -18.0);
+    let box2 = Translate::new(box2, Vec3::new(130.0, 0.0, 65.0));
+    world.add(box2);
 
     world.into()
 }

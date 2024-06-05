@@ -52,6 +52,7 @@ pub enum Hittable {
     HittableList(hittable_list::HittableList),
     BvhNode(bvh::BvhNode),
     Translate(instance::Translate),
+    YRotate(instance::YRotate),
 }
 
 impl From<sphere::Sphere> for Hittable {
@@ -81,6 +82,12 @@ impl From<bvh::BvhNode> for Hittable {
 impl From<instance::Translate> for Hittable {
     fn from(value: instance::Translate) -> Self {
         Hittable::Translate(value)
+    }
+}
+
+impl From<instance::YRotate> for Hittable {
+    fn from(value: instance::YRotate) -> Self {
+        Hittable::YRotate(value)
     }
 }
 
@@ -213,6 +220,38 @@ impl Hittable {
                     None
                 }
             }
+
+            YRotate(rot) => {
+                // Change from world space to object space
+                let mut origin = *r.origin();
+                let mut direction = *r.direction();
+
+                origin[0] = rot.cos_theta * r.origin()[0] - rot.sin_theta * r.origin()[2];
+                origin[2] = rot.sin_theta * r.origin()[0] + rot.cos_theta * r.origin()[2];
+
+                direction[0] = rot.cos_theta * r.direction()[0] - rot.sin_theta * r.direction()[2];
+                direction[2] = rot.sin_theta * r.direction()[0] + rot.cos_theta * r.direction()[2];
+
+                let rotated_r = Ray::with_time(origin, direction, r.time());
+
+                if let Some(mut rec) = rot.object.hit(rotated_r, ray_t) {
+                    // Change the intersection point from object space to world space
+                    let mut p = rec.p;
+                    p[0] = rot.cos_theta * rec.p[0] + rot.sin_theta * rec.p[2];
+                    p[2] = -rot.sin_theta * rec.p[0] + rot.cos_theta * rec.p[2];
+                    rec.p = p;
+
+                    // Change the normal from object space to world space
+                    let mut normal = rec.normal;
+                    normal[0] = rot.cos_theta * rec.normal[0] + rot.sin_theta * rec.normal[2];
+                    normal[2] = -rot.sin_theta * rec.normal[0] + rot.cos_theta * rec.normal[2];
+                    rec.normal = normal;
+
+                    Some(rec)
+                } else {
+                    None
+                }
+            }
         }
     }
 
@@ -228,6 +267,8 @@ impl Hittable {
             BvhNode(bvh) => bvh.bbox.clone(),
 
             Translate(t) => t.bbox.clone(),
+
+            YRotate(y) => y.bbox.clone(),
         }
     }
 }

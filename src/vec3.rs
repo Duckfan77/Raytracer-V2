@@ -1,6 +1,6 @@
 use std::{
     fmt::Display,
-    ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub},
 };
 
 use once_cell::sync::Lazy;
@@ -215,6 +215,17 @@ impl Index<usize> for Vec3 {
             0 => &self.0,
             1 => &self.1,
             2 => &self.2,
+            _ => panic!("Used unknown index value to index into Vec3: {}", index),
+        }
+    }
+}
+
+impl IndexMut<usize> for Vec3 {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        match index {
+            0 => &mut self.0,
+            1 => &mut self.1,
+            2 => &mut self.2,
             _ => panic!("Used unknown index value to index into Vec3: {}", index),
         }
     }
