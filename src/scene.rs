@@ -574,6 +574,54 @@ pub fn symbol() -> Hittable {
     world.into()
 }
 
+pub fn cornell_box() -> Hittable {
+    let mut world = HittableList::new();
+
+    let red = Lambertian::new(Color::new(0.65, 0.05, 0.05));
+    let white = Lambertian::new(Color::new(0.73, 0.73, 0.73));
+    let green = Lambertian::new(Color::new(0.12, 0.45, 0.15));
+    let light = DiffuseLight::new(Color::new(15.0, 15.0, 15.0));
+
+    world.add(Quad::new(
+        Point3::new(555.0, 0.0, 0.0),
+        Vec3::new(0.0, 555.0, 0.0),
+        Vec3::new(0.0, 0.0, 555.0),
+        green,
+    ));
+    world.add(Quad::new(
+        Point3::new(0.0, 0.0, 0.0),
+        Vec3::new(0.0, 555.0, 0.0),
+        Vec3::new(0.0, 0.0, 555.0),
+        red,
+    ));
+    world.add(Quad::new(
+        Point3::new(343.0, 554.0, 332.0),
+        Vec3::new(-130.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, -105.0),
+        light,
+    ));
+    world.add(Quad::new(
+        Point3::new(0.0, 0.0, 0.0),
+        Vec3::new(555.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, 555.0),
+        white.clone(),
+    ));
+    world.add(Quad::new(
+        Point3::new(555.0, 555.0, 555.0),
+        Vec3::new(-555.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, -555.0),
+        white.clone(),
+    ));
+    world.add(Quad::new(
+        Point3::new(0.0, 0.0, 555.0),
+        Vec3::new(555.0, 0.0, 0.0),
+        Vec3::new(0.0, 555.0, 0.0),
+        white.clone(),
+    ));
+
+    world.into()
+}
+
 // Camera positions and layouts
 
 pub fn unmoved_camera() -> Camera {
@@ -759,6 +807,24 @@ pub fn symbol_camera() -> Camera {
         vfov: 20.0,
         look_from: Point3::new(26.0, 3.0, 6.0),
         look_at: Point3::new(0.0, 2.0, 0.0),
+        v_up: Vec3::new(0.0, 1.0, 0.0),
+
+        defocus_angle: 0.0,
+        focus_dist: 10.0,
+    }
+}
+
+pub fn cornell_box_cam() -> Camera {
+    Camera {
+        aspect_ratio: 1.0,
+        image_width: 600,
+        samples_per_pixel: 200,
+        max_depth: 50,
+        background: Some(Color::black()),
+
+        vfov: 40.0,
+        look_from: Point3::new(278.0, 278.0, -800.0),
+        look_at: Point3::new(278.0, 278.0, 0.0),
         v_up: Vec3::new(0.0, 1.0, 0.0),
 
         defocus_angle: 0.0,
