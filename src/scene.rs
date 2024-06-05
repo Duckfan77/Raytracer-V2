@@ -11,7 +11,7 @@ use crate::{
     camera::Camera,
     color::Color,
     hittable::{bvh::BvhNode, hittable_list::HittableList, quad::Quad, sphere::Sphere, Hittable},
-    material::{dielectric::*, lambertian::Lambertian, metal::Metal},
+    material::{dielectric::*, emissive::DiffuseLight, lambertian::Lambertian, metal::Metal},
     texture::{
         checker::Checker,
         image::Image,
@@ -541,6 +541,39 @@ pub fn quads() -> Hittable {
     world.into()
 }
 
+pub fn symbol() -> Hittable {
+    let mut world = HittableList::new();
+
+    let per_text = TurbNoise::new(1.0, 7);
+    world.add(Sphere::new(
+        Point3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Metal::new(Color::new(1.0, 0.0, 0.0), 0.0),
+    ));
+    world.add(Sphere::new(
+        Point3::new(0.0, 2.0, 0.0),
+        2.0,
+        Lambertian::from_texture(per_text),
+    ));
+
+    let diff_light = DiffuseLight::new(Color::new(0.0, 2.0, 8.0));
+    world.add(Quad::new(
+        Point3::new(3.0, 10.0, 3.0),
+        Vec3::new(-6.0, 0.0, 0.0),
+        Vec3::new(0.0, 0.0, -6.0),
+        diff_light,
+    ));
+
+    let sphere_light = DiffuseLight::new(Color::new(4.0, 4.0, 4.0));
+    world.add(Sphere::new(
+        Point3::new(-5.0, 2.0, -15.0 / 13.0),
+        2.5,
+        sphere_light,
+    ));
+
+    world.into()
+}
+
 // Camera positions and layouts
 
 pub fn unmoved_camera() -> Camera {
@@ -711,5 +744,24 @@ pub fn quads_camera() -> Camera {
         focus_dist: 10.0,
 
         background: None,
+    }
+}
+
+pub fn symbol_camera() -> Camera {
+    Camera {
+        aspect_ratio: 16.0 / 9.0,
+        image_width: 3840,
+        //image_width: 1280,
+        samples_per_pixel: 500,
+        max_depth: 50,
+        background: Some(Color::black()),
+
+        vfov: 20.0,
+        look_from: Point3::new(26.0, 3.0, 6.0),
+        look_at: Point3::new(0.0, 2.0, 0.0),
+        v_up: Vec3::new(0.0, 1.0, 0.0),
+
+        defocus_angle: 0.0,
+        focus_dist: 10.0,
     }
 }

@@ -13,8 +13,8 @@ mod texture;
 mod vec3;
 
 fn main() -> Result<()> {
-    let world = quads();
-    let cam = quads_camera();
+    let world = symbol();
+    let cam = symbol_camera();
 
     cam.render(&world)
 }
